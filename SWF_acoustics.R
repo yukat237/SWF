@@ -1,6 +1,6 @@
 
 #########################################
-#      Plot SWF tones (Matching task)       #date: 4/24/2023
+#      Plot SWF tones (Matching task)   
 #########################################
 
 #####----assumptions-----#####
