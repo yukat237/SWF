@@ -1,6 +1,6 @@
 
 #########################################
-#      Plot SWF tones (Matching task)   
+#      Plot SWF tones (Matching task)                ## Original is by Eric Pelzl; Yuka is editting for my own use
 #########################################
 
 #####----assumptions-----#####
