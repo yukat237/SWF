@@ -17,26 +17,25 @@ library(scico)
 setwd("/Users/yzt5262/OneDrive - The Pennsylvania State University/Desktop/Eric's study (SWF)")
 accuracy_data <- read.csv("yuk_ac_analysis/processed_matching_data.csv")
 
-# renaming data in the pair column
+# renaming data in the "pair" column
 accuracy_data$pair <- str_replace_all(accuracy_data$pair, "P_", "P")
 
 #####----- LOAD ACOUSTIC DATA -----#####
 #set the relevant data type from ProsodyPro files
 filetype <- ".actutimenormf0$"
-#read files (that are .actutimenormf0)
+#list files (that are **.actutimenormf0 only)
 list_of_files <- list.files(path = ".", recursive = TRUE,
                             pattern = paste("\\", filetype, sep=""), 
                             full.names = TRUE)
 
-# Read all the files and create a FileName column to store filenames
-# this may take a little bit of time
+# Read all the files and create a FileName column to store filenames (this may take awhile)
 df <- list_of_files %>%
   set_names(.) %>%
   map_df(read_table2, .id = "FileName")
-df_backup <- df # load into backup dataframe to save time on reloading if playing with code below
-df <- df_backup
-head(df)
-df <- df %>% filter(rowLabel != "error") %>% droplevels() # remove items labeled as errors
+# make a backup of full data
+  df_backup <- df
+# remove items labeled as errors
+df <- df %>% filter(rowLabel != "error") %>% droplevels()
 df$item <- str_replace_all(df$FileName, pattern = "./Pair[:digit:]/", replacement = "")
 df$item <- str_replace_all(df$item, pattern = filetype, replacement = "")
 df$FileName <- NULL
