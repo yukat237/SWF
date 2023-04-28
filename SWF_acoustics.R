@@ -36,53 +36,56 @@ df <- list_of_files %>%
   df_backup <- df
 # remove items labeled as errors
 df <- df %>% filter(rowLabel != "error") %>% droplevels()
-df$item <- str_replace_all(df$FileName, pattern = "./Pair[:digit:]/", replacement = "")
+# add an "item" column
+df$item <- str_replace_all(df$FileName, pattern = "./yuk_ac_analysis/pair[:digit:]/", replacement = "")
 df$item <- str_replace_all(df$item, pattern = filetype, replacement = "")
+# erase unneeded columns
 df$FileName <- NULL
 df$rowLabel <- NULL
 
-# create column for surnames w/ proper labels
+# create "title" column for surnames w/ proper labels
 df$title <- str_extract(df$item, pattern = "lu[:digit:][:alpha:]*")
 df$surname <- str_extract(df$item, pattern = "lu[:digit:]")
 df$surname <- str_replace_all(df$surname, "l", "L")
 
-# rename titles as sandhi/noSandhi
+# rename the title column values as sandhi/noSandhi
 df$title <- str_sub(df$title, 4,12)
 df$sandhi <- str_replace_all(df$title, "jiangjun", "no Sandhi")
 df$sandhi <- str_replace_all(df$sandhi, "zhentan", "no Sandhi")
 df$sandhi <- str_replace_all(df$sandhi, "jingguan", "Sandhi")
 df$sandhi <- str_replace_all(df$sandhi, "zhuren", "Sandhi")
 
+# create "trial" column
 df$trial <- str_extract(df$item, pattern = "T[:digit:]*")
+
+# create "block" column
 df$block <- str_extract(df$item, pattern = "B[:digit:]")
 df$block <- str_replace_all(df$block, "B", "Block ")
+
+# create "pair" column 
 df$pair <- str_extract(df$item, pattern = "Pair[:digit:][:digit:]")
 df$pair <- str_replace_all(df$pair, "Pair", "P")
-head(df)
 
-# set as factors
+# set all column values as factors
 df$surname <- as.factor(df$surname)
 df$sandhi <- as.factor(df$sandhi)
 df$pair <- as.factor(df$pair)
 df$block <- as.factor(df$block)
 df$trial <- as.factor(df$trial)
 
-head(df)
-head(accuracy_data)
+#combine df and accuracy_data
 new_df <- left_join(df, accuracy_data, by = c("pair" = "pair", "block"="block", "trial"="trial"))
-head(new_df)
-str(new_df)
 
+# make a main df (SWF) only with necessary information
 SWF <- new_df %>% dplyr::select(pair, surname, sandhi, trial, block, ActualTime, F0, Accuracy) %>% rename("time" = "ActualTime")
+
+# convert sec to msec ("time" column)
 SWF$msec <- SWF$time * 1000
-head(SWF)
 
 # remove items missing labels (and fix those items!)
 SWF <- SWF %>% filter(SWF$surname != "NA") %>% droplevels()
-str(SWF)
-# F0 normalization
-# for each data point, 
-# F0.zi = (F0i – F0mean)/F0sd
+
+# F0 normalization; for each data point, F0.zi = (F0i – F0mean)/F0sd
 SWF$z_scores <- (SWF$F0- mean(SWF$F0))/sd(SWF$F0)
 SWFi <- SWF %>% filter(Accuracy == "Incorrect") %>% droplevels()
 SWF$pair <- as.factor(SWF$pair)
@@ -98,8 +101,6 @@ SWF_P7 <- SWF %>% filter(pair == "P07") %>% droplevels()
 SWF_P8 <- SWF %>% filter(pair == "P08") %>% droplevels()
 SWF_P9 <- SWF %>% filter(pair == "P09") %>% droplevels()
 SWF_P10 <- SWF %>% filter(pair == "P10") %>% droplevels()
-
-head(SWF_P10)
 
 #SWF_P3 <- SWF_P3 %>% group_by(block, surname, sandhi, msec) %>% summarise(F0 = mean(F0)) 
 
