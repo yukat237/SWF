@@ -13,7 +13,7 @@ library(tidyverse)
 library(ggplot2)
 library(scico)
 
-#####----- LOAD ACCURACY DATA -----#####
+#####----- LOAD ACCURACY DATA -----#####   (#for my laptop: setwd("/Users/yuka/Desktop/")
 setwd("/Users/yzt5262/OneDrive - The Pennsylvania State University/Desktop/Eric's study (SWF)")
 accuracy_data <- read.csv("yuk_ac_analysis/processed_matching_data.csv")
 
