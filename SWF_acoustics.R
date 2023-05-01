@@ -34,11 +34,11 @@ df <- list_of_files %>%
   map_df(read_table2, .id = "FileName")
 # make a backup of full data
   df_backup <- df
-# remove items labeled as errors
+# remove items labeled as errors (yuka note: nothing was dropped)
 df <- df %>% filter(rowLabel != "error") %>% droplevels()
-# add an "item" column
-df$item <- str_replace_all(df$FileName, pattern = "./yuk_ac_analysis/pair[:digit:]/", replacement = "")
-df$item <- str_replace_all(df$item, pattern = filetype, replacement = "")
+# add an "item" column (yuka note: changed to lower case p from upper P)
+df$item <- str_replace_all(df$FileName, pattern = "./yuk_ac_analysis/pair[:digit:]/", replacement = "") #got item type from file name
+df$item <- str_replace_all(df$item, pattern = filetype, replacement = "") #take out ".actuimenormf0"
 # erase unneeded columns
 df$FileName <- NULL
 df$rowLabel <- NULL
@@ -48,8 +48,8 @@ df$title <- str_extract(df$item, pattern = "lu[:digit:][:alpha:]*")
 df$surname <- str_extract(df$item, pattern = "lu[:digit:]")
 df$surname <- str_replace_all(df$surname, "l", "L")
 
-# rename the title column values as sandhi/noSandhi
-df$title <- str_sub(df$title, 4,12)
+# create "sandhi" column and get values of either: sandhi/noSandhi
+df$title <- str_sub(df$title, 4, 12)
 df$sandhi <- str_replace_all(df$title, "jiangjun", "no Sandhi")
 df$sandhi <- str_replace_all(df$sandhi, "zhentan", "no Sandhi")
 df$sandhi <- str_replace_all(df$sandhi, "jingguan", "Sandhi")
@@ -63,8 +63,12 @@ df$block <- str_extract(df$item, pattern = "B[:digit:]")
 df$block <- str_replace_all(df$block, "B", "Block ")
 
 # create "pair" column 
-df$pair <- str_extract(df$item, pattern = "Pair[:digit:][:digit:]")
-df$pair <- str_replace_all(df$pair, "Pair", "P")
+df$pair <- str_extract(df$item, pattern = "P[:digit:]")#(yuka: changed from Pair[:digit:], changed the next line to have "P01", not P1)
+df$pair <- str_replace_all(df$pair, "P", "P0")
+
+#trial
+
+
 
 # set all column values as factors
 df$surname <- as.factor(df$surname)
@@ -82,7 +86,7 @@ SWF <- new_df %>% dplyr::select(pair, surname, sandhi, trial, block, ActualTime,
 # convert sec to msec ("time" column)
 SWF$msec <- SWF$time * 1000
 
-# remove items missing labels (and fix those items!)
+# remove items missing labels (and fix those items!) (yuka note: nothing was dropped)
 SWF <- SWF %>% filter(SWF$surname != "NA") %>% droplevels()
 
 # F0 normalization; for each data point, F0.zi = (F0i – F0mean)/F0sd
