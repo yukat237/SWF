@@ -12,6 +12,7 @@
 library(tidyverse)
 library(ggplot2)
 library(scico)
+library(stringr)
 
 #####----- LOAD ACCURACY DATA -----#####   (#for my laptop: setwd("/Users/yuka/Desktop/")
 setwd("/Users/yzt5262/OneDrive - The Pennsylvania State University/Desktop/Eric's study (SWF)")
@@ -34,6 +35,7 @@ df <- list_of_files %>%
   map_df(read_table2, .id = "FileName")
 # make a backup of full data
   df_backup <- df
+  # to restore: df <- df_backup
 # remove items labeled as errors (yuka note: nothing was dropped)
 df <- df %>% filter(rowLabel != "error") %>% droplevels()
 # add an "item" column (yuka note: changed to lower case p from upper P)
@@ -62,13 +64,11 @@ df$trial <- str_extract(df$item, pattern = "T[:digit:]*")
 df$block <- str_extract(df$item, pattern = "B[:digit:]")
 df$block <- str_replace_all(df$block, "B", "Block ")
 
-# create "pair" column 
-df$pair <- str_extract(df$item, pattern = "P[:digit:]")#(yuka: changed from Pair[:digit:], changed the next line to have "P01", not P1)
-df$pair <- str_replace_all(df$pair, "P", "P0")
-
-#trial
-
-
+# create "pair" column (yuka: changed this whole section, bc it did not take P10 with [:digit:]only)
+df$pair <- str_match(df$item, "P\\s*(.*?)\\s*_")
+df$pair <- str_replace_all(df$pair[,1], "P", "P0")
+df$pair <- str_replace_all(df$pair, "_", "")
+df$pair <- str_replace_all(df$pair, "P010", "P10")
 
 # set all column values as factors
 df$surname <- as.factor(df$surname)
@@ -105,8 +105,6 @@ SWF_P7 <- SWF %>% filter(pair == "P07") %>% droplevels()
 SWF_P8 <- SWF %>% filter(pair == "P08") %>% droplevels()
 SWF_P9 <- SWF %>% filter(pair == "P09") %>% droplevels()
 SWF_P10 <- SWF %>% filter(pair == "P10") %>% droplevels()
-
-#SWF_P3 <- SWF_P3 %>% group_by(block, surname, sandhi, msec) %>% summarise(F0 = mean(F0)) 
 
 # create color palette for plotting
 myColors <- scico(9, palette = 'berlin')
