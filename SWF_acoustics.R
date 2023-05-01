@@ -95,6 +95,9 @@ SWFi <- SWF %>% filter(Accuracy == "Incorrect") %>% droplevels()
 SWF$pair <- as.factor(SWF$pair)
 levels(SWF$pair)
 
+#yuka's edit... make SWF into a dataframe so that we can treat it more conveniently
+SWF<-as.data.frame(SWF)
+
 SWF_P1 <- SWF %>% filter(pair == "P01") %>% droplevels()
 SWF_P2 <- SWF %>% filter(pair == "P02") %>% droplevels()
 SWF_P3 <- SWF %>% filter(pair == "P03") %>% droplevels()
@@ -113,14 +116,17 @@ myColors
 myColors <- c( "#519FD3" , "#BC6D61" , "#EAEDE9" ) #180B09
 
 #Raw f0 plotting 
+LofDf<- list(SWF_P1,SWF_P2,SWF_P3,SWF_P4,SWF_P5,SWF_P6,SWF_P7,SWF_P8,SWF_P9,SWF_P10)
+for (i in 1:10){
 g1 <- 
-  ggplot( SWF_P3 , aes( x = msec, y = F0, group = trial)) + theme_minimal()+
+  ggplot( LofDf[[i]], aes( x = msec, y = F0, group = trial)) + theme_minimal()+
   geom_smooth( method = "loess", se = F, aes( colour = surname, fill = surname ), alpha = .5, size = .35) +
   facet_grid( sandhi ~ block ) + # for overall view, consider sandhi ~ surname
   scale_y_continuous("F0 (Hz)")+
   scale_x_continuous("duration (ms)")+
   scale_color_manual(values = myColors) + 
   scale_fill_manual(values = myColors) +
+  ggtitle(paste0("Pair", i)) +
   theme(
     #    legend.position = "none",
     panel.grid = element_blank(),
@@ -134,6 +140,7 @@ g1 <-
     plot.background = element_rect(fill = "white", color = NA)
   )
 print(g1)
+}
 
 
 #ggsave(g1,
