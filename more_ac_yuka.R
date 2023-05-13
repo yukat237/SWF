@@ -41,6 +41,9 @@ f0range <- basicinfo[1,2] - basicinfo[1,3]
 #creakiness
 # I am thinking it is just Pratt to use Voicesauce or Praat, cus not much infoavaliable
 
+
+
+
 ###so let's loop through all files just for these basic data ----------------------------
 
 #read in all files
@@ -85,10 +88,28 @@ for (k in 1:filenum){
                                             tone = tone, itemID = itemID, duration = dur, f0mean = f0mean, f0range = f0range)
        
       }
+# If need to write out:
+      # set the output path
+      pathOut <- paste0(currDir,'/basicAC.csv')
+      # save the output
+      write.table(basicinfoFULL, pathOut, sep = ",", row.names = F)
 
 
+# Basic stats
 
 
+# Visualizations     
+
+      
+      
+###so let's loop through all files just for these basic data ----------------------------     
+      
+      P1path <- paste0(currDir,'/pair1/output.txt')
+      VSdataP1 <- read.delim(P1path, header = TRUE)
+      
+      
+      
+      
 
 #----------------------------------------------------------------------------------------
 #Acoustics to explore-------------------------------------------------------
