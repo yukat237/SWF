@@ -3,8 +3,9 @@
 #########################################
 
 
-#Just seeing some examples
+#Just seeing some examples-------------------------------------------------------
 
+# to get all diff data files output from ProsodyPro in 1 list of dataframes (seeing only 1 data)
 exfiles<-list.files(path = "/Users/yzt5262/OneDrive - The Pennsylvania State University/Desktop/Eric's study (SWF)/yuk_ac_analysis/pair1/",
            pattern = "P1_lu2zhuren_B4_T3.*", 
            full.names = TRUE)
@@ -19,16 +20,100 @@ exdat <- lapply(exfiles, function(file) {
   )
 })
 
-
 #if using "read.table,".label, .PitchTier, .pulse, .semitonef0 were skipped. also textgrid.
 #Nulls are: list#... 8,15,16,19 21
 #label--- not needed
 #PitchTier---- more for reading as a object in Praat
 #pulse----same as above
 
+###only extract needed info for ac stats later
+#duration --- exdat[[9]]
+basicinfo <-  exdat[[9]]
+dur <- basicinfo[1,8]
+
+#f0 --- exdat[[9]]
+f0mean <- basicinfo[1,5]
+f0range <- basicinfo[1,2] - basicinfo[1,3]
+
+#norm time f0 --> this is more for contour and not the acoustic itself?
+
+#creakiness
+# I am thinking it is just Pratt to use Voicesauce or Praat, cus not much infoavaliable
+
+###so let's loop through all files just for these basic data ----------------------------
+
+for 
+      files<-list.files(path = "/Users/yzt5262/OneDrive - The Pennsylvania State University/Desktop/Eric's study (SWF)/yuk_ac_analysis/pair1/",
+                          pattern = "P1_lu2zhuren_B4_T3.*", 
+                          full.names = TRUE)
+      #exfiletypes<-sub(exfiles, pattern =)
+      exdat <- lapply(exfiles, function(file) {
+        tryCatch(
+          acdf <- read.delim(file, header = TRUE),
+          error = function(e) {
+            message(paste("Error reading", file, ": skipping file."))
+            return(NULL)
+          }
+        )
+      })
+
+#duration --- exdat[[9]]
+basicinfo <-  exdat[[9]]
+dur <- basicinfo[1,8]
+
+#f0 --- exdat[[9]]
+f0mean <- basicinfo[1,5]
+f0range <- basicinfo[1,2] - basicinfo[1,3]
 
 
-#==========================trash================================
+
+
+#----------------------------------------------------------------------------------------
+#Acoustics to explore-------------------------------------------------------
+ #list of measures
+#duration
+#voice quality (creak)
+#f0 range, duration, % tme (normed) with f0
+#(growth curve modeling, for contour tones)
+
+#Creak---------------------------------
+# (Keating etal 2015)
+# Prototypical creaky voice can be distinguished acoustically by its lower F0, by its irregular F0 (which results in lower values of various harmonicto-noise measures),
+# and by its lower H1 and H1-H2, and other harmonic difference measures. Just one or two of these prototypical properties apparently suffices to make a sample creaky. 
+# Creak that is vocal fry with a regular F0 could instead show higher HNR together with lower formant bandwidths.
+# Creak that is multiply pulsed can lack a clear F0 but instead show subharmonics (resulting in higher values of SHR). 
+# Non-constricted creak can instead show higher H1-H2, but still with a low and irregular F0. Creak that is more like tense or pressed 
+# voice can have a mid or high, and regular, F0. We hope to convey that there is no straightforward answer to the FAQ, 
+# “What is the best acoustic measure for creaky voice?”. It entirely depends on what kind(s) of creak the investigator wants to identify.
+# It cannot be expected that measures such as H1*-H2*, or jitter, etc., will always characterize creaky voice, since there are special sub-types 
+# that are not glottally constricted, or not irregular, etc. It is crucial to keep in mind that when different acoustic measures seem to “disagree”
+# about the creakiness of a speech sample, the set of measures as a whole is in fact giving valuable information about the specific voice quality in the sample.
+
+#so what kindn of creak do i want to ientify?
+ # Huang, Y. (2020). Different attributes of creaky voice distinctly affect Mandarin tonal perception. 
+# => low f0 is the most prominent cue used in Mandarin tone identification.
+# Stimuli with low spectral tilt (low ST)
+      # were created by lowering two parameters: Open Phase (H1–H2) and Spectral Tilt (H1–3000 Hz), resulting in 
+      # less energy in the first harmonic relative to both the second harmonic and higher frequencies
+# The second acoustic attribute, irregular F0, 
+      # was manipulated through the Flutter parameter. 
+# Period doubling, indicating an alternate pitch cycle along with the harmonics, 
+      # was created by setting the Double Pulsing parameter to a value of 0.15
+      # The specific parameter values were chosen so as to create a percept of creak while still ensuring a natural voice quality
+# For the extra-low F0 attribute
+      # the lowest F0 value in the modal stimuli for each tone was lowered by three semitones to create a clear drop 
+      # in the pitch contour relative to its surrounding pitch points. Given that the lowest F0 occurred in the different positions of the modal Tones
+      # 2, 3, and 4, the corresponding extra-low F0s were in the same regions (beginning of T2, middle of T3, and end of T4). 
+
+#-----
+#
+
+
+
+
+#==========================================================
+#==========================trash===========================
+#==========================================================
   
   file_type_list<- lapply(exfiles, function(file) {
     name<-basename(file)
