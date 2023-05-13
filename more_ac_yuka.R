@@ -2,6 +2,7 @@
 ###  Yuka acoustic data exploration   ###
 #########################################
 
+library(tidyverse)
 
 #Just seeing some examples-------------------------------------------------------
 
@@ -42,28 +43,49 @@ f0range <- basicinfo[1,2] - basicinfo[1,3]
 
 ###so let's loop through all files just for these basic data ----------------------------
 
-for 
-      files<-list.files(path = "/Users/yzt5262/OneDrive - The Pennsylvania State University/Desktop/Eric's study (SWF)/yuk_ac_analysis/pair1/",
-                          pattern = "P1_lu2zhuren_B4_T3.*", 
-                          full.names = TRUE)
-      #exfiletypes<-sub(exfiles, pattern =)
-      exdat <- lapply(exfiles, function(file) {
-        tryCatch(
-          acdf <- read.delim(file, header = TRUE),
-          error = function(e) {
-            message(paste("Error reading", file, ": skipping file."))
-            return(NULL)
-          }
-        )
-      })
+#read in all files
+setwd("/Users/yzt5262/OneDrive - The Pennsylvania State University/Desktop/Eric's study (SWF)/yuk_ac_analysis/")
+currDir <- getwd()
+fileList <- c()
+for (n in 1:10){
+  folderpath <- paste0(currDir, "/pair", n)
+  tempfileList <- list.files(folderpath, pattern = "means+")
+  fileList <- append(fileList,tempfileList)
+}
+filenum <- length(fileList)
 
-#duration --- exdat[[9]]
-basicinfo <-  exdat[[9]]
-dur <- basicinfo[1,8]
+#process each data 
+basicinfoFULL<-data.frame(filename = character(0),
+                          pair = character(0),
+                          block = character(0),
+                          tone = character(0),
+                          itemID = character(0),
+                          duration = numeric(0),
+                          f0mean = numeric(0),
+                          f0range = numeric(0)
+                          )
+for (k in 1:filenum){
+        # prep to append
+        datName <- str_replace_all(fileList[k], "_Matching.means", "")
+        pair <- str_extract(datName, pattern = "P[:digit:]*")
+        block <- str_extract(datName, pattern = "B[:digit:]*")
+        tone <- str_extract(datName, pattern = "lu[:digit:]*")
+        itemID <- str_extract(datName, pattern = "T[:digit:]*")
+        
+        # main data
+        pairNum <- str_replace_all(pair, "P", "")
+        setwd(paste0(currDir,"/Pair", pairNum))
+        basicDf <- read.delim(fileList[k], header = TRUE)
+        dur <- basicDf[1,8]
+        f0mean <- basicDf[1,5]
+        f0range <- basicDf[1,2] - basicDf[1,3]
+        
+        # append data
+        basicinfoFULL<- basicinfoFULL %>% add_row(filename = datName, pair = pair, block = block, 
+                                            tone = tone, itemID = itemID, duration = dur, f0mean = f0mean, f0range = f0range)
+       
+      }
 
-#f0 --- exdat[[9]]
-f0mean <- basicinfo[1,5]
-f0range <- basicinfo[1,2] - basicinfo[1,3]
 
 
 
@@ -114,7 +136,9 @@ f0range <- basicinfo[1,2] - basicinfo[1,3]
 #==========================================================
 #==========================trash===========================
 #==========================================================
-  
+basicinfoFULL<- rbind(basicinfoFULL, list(datName, pair, block, tone, itemID, dur, f0mean, f0range))
+
+
   file_type_list<- lapply(exfiles, function(file) {
     name<-basename(file)
   })
