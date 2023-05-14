@@ -94,8 +94,28 @@ for (k in 1:filenum){
       # save the output
       write.table(basicinfoFULL, pathOut, sep = ",", row.names = F)
 
-
+    #path of this df for my laptop: "C:\Users\yuka\Desktop\SWF\basicAC.csv"
+    #to read it when working on laptop: 
+      basicinfoFULL <- read.delim("/Users/yuka/Desktop/SWF/basicAC.csv", sep = ",")
+      
+    # combine accuracy data  
+      acDf <- read.delim("/Users/yuka/Desktop/SWF/processed_matching_data.csv", sep = ",")
+      #need to match by: pair, block, trial (tone differs as a result).
+      #change P_01 to P1
+      acDf$pair <- gsub( "P_0(\\d+)", "P\\1", acDf$pair)
+      acDf$pair <- gsub( "P_10", "P10", acDf$pair)
+      #change Block 4 to B4
+      acDf$block <- gsub("Block\\s+(\\d+)", "B\\1", acDf$block)
+      
+      
 # Basic stats
+      #possible things to look at:
+        # duration 
+            # differ by tones?
+            # differ by correct vs incorrect items?
+            # differ by block? (longer in 4 than 1?)
+            # differ by pair? (successful pair has longer duration?)
+      
 
 
 # Visualizations     
