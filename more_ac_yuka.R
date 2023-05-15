@@ -149,29 +149,49 @@ ggplot(mDfB4, aes(fill=tone, y=duration, x=pair)) +
 
 
 
-# Creakness (using Voicesauce data) 
-#pair 1
-P1path <- paste0(currDir,'/pair1/output.txt')
-VSdataP1 <- read.delim(P1path, header = TRUE)
-#just checked the quality. it looks like perfectly taking the annotated segment and not the other parts.
-#concern: failing to get f0...
-  # strf0= Straight by Kawahara 1998
-  # sF0 = Snack Sound Toolkit 
-  # pf0 = praat 
-  # shrf0 = Sun's subharmonic-to-harmonic Ratio
-      # for our data, pF0 and oF0 not working. (o is for "Other")., but str and s are working!
+
+# Creakness (using Voicesauce data) ----
+    #pair 1
+    P1path <- paste0(currDir,'/pair1/output.txt')
+    VSdataP1 <- read.delim(P1path, header = TRUE)
+    #just checked the quality. it looks like perfectly taking the annotated segment and not the other parts.
+    #concern: failing to get f0...
+      # strf0= Straight by Kawahara 1998
+      # sF0 = Snack Sound Toolkit 
+      # pf0 = praat 
+      # shrf0 = Sun's subharmonic-to-harmonic Ratio
+          # for our data, pF0 and oF0 not working. (o is for "Other")., but str and s are working!
 #let's see if any of these seem to be getting the right measures.
 
-      
-###so let's loop through all files just for these basic data ----------------------------     
-      
       P1path <- paste0(currDir,'/pair1/output.txt')
       VSdataP1 <- read.delim(P1path, header = TRUE)
       
-      
-      
-      
+      #how many rows for 1 data file?
+     Onedata <-  VSdataP1[VSdataP1$Filename == "P1_lu2zhuren_B3_T17_Matching.mat",]
+      # 285 data for one file.
+     
+     Onedata2 <- VSdataP1[VSdataP1$Filename == "P1_lu2jiangjun_B1_T10_Matching.mat",]
+     # 361 data for one file.
+     
+     # --> confirming that this is getting the right 10 msec each for the interval. (maybe 1 or 2 more than that?)
+     
+     # for each data, get creakiness measures. and compare by tones.
+       #columns to use: f0 (for extra-low f0), H1-H2,  HNR (irregular F0)
+     
+     #one data has extra 1 space before Lu2... 
+     VSdataP1[VSdataP1$Label == " Lu2",]
+     #relabeling them
+     VSdataP1$Label <- str_replace_all(VSdataP1$Label, " Lu2", "Lu2")
 
+     #strF0
+     VSdataP1$Label <- as.factor(VSdataP1$Label)
+     ggplot(VSdataP1, aes(y=strF0, x=Label)) +
+       geom_violin() + scale_fill_discrete(palette="Dark2")
+
+     #
+     
+
+     
 #----------------------------------------------------------------------------------------
 #Acoustics to explore-------------------------------------------------------
  #list of measures
@@ -218,6 +238,11 @@ VSdataP1 <- read.delim(P1path, header = TRUE)
 #==========================================================
 #==========================trash===========================
 #==========================================================
+     VSdataP1[VSdataP1$Label] == as.character(factorsList[2]),]
+factorsList<-unique(VSdataP1$Label)
+
+     
+     
 basicinfoFULL<- rbind(basicinfoFULL, list(datName, pair, block, tone, itemID, dur, f0mean, f0range))
 
 
