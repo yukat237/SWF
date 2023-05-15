@@ -183,14 +183,65 @@ ggplot(mDfB4, aes(fill=tone, y=duration, x=pair)) +
      #relabeling them
      VSdataP1$Label <- str_replace_all(VSdataP1$Label, " Lu2", "Lu2")
 
-     #strF0
+     #prep
      VSdataP1$Label <- as.factor(VSdataP1$Label)
-     ggplot(VSdataP1, aes(y=strF0, x=Label)) +
-       geom_violin() + scale_fill_discrete(palette="Dark2")
-
-     #
      
+     #strF0
+     ggplot(VSdataP1, aes(y=strF0, x=Label, fill = Label)) +
+       geom_violin(trim=FALSE) + scale_fill_brewer(palette="Set3")
+     # + scale_fill_discrete(palette="Dark2")
+       # + geom_boxplot(width = 0.1)
+       
 
+     #sF0
+     ggplot(VSdataP1, aes(y=sF0, x=Label, fill = Label)) +
+       geom_violin(trim=FALSE) + scale_fill_brewer(palette="Set3")
+     
+      #just by looking at these, strf0 is working in the most right way?
+      #but also this is getting average so not right?
+      #maybe I should focus on minF0 for that data, and then do this visualizations.
+     
+     #for each data file, get the min strf0, and add a column for that.
+     
+     # H1 (low = creakier)
+      # H1c = corrected
+     ggplot(VSdataP1, aes(y=H1c, x=Label, fill = Label)) +
+       geom_violin(trim=FALSE) + scale_fill_brewer(palette="YlOrRd")
+     
+      # H1u + uncorrected
+     ggplot(VSdataP1, aes(y=H1u, x=Label, fill = Label)) +
+       geom_violin(trim=FALSE) + scale_fill_brewer(palette="YlOrRd")
+     
+     # ==> look pretty much the same? maybe Lu2 is diff from Lu3 and 4
+     
+     
+     # H1-H2 (low = creakier)
+        # H1H2c = corrected
+     ggplot(VSdataP1, aes(y=H1H2c, x=Label, fill = Label)) +
+       geom_violin(trim=FALSE) + scale_fill_brewer(palette="PuBuGn")
+     
+     
+        # H1H2u = uncorrected
+     ggplot(VSdataP1, aes(y=H1H2u, x=Label, fill = Label)) +
+       geom_violin(trim=FALSE) + scale_fill_brewer(palette="PuBuGn")
+     
+               # ==> look pretty much the same
+     
+     
+     # HNRs (lower = creakier)
+        # HNR05 = HNR between 0-500Hz
+     ggplot(VSdataP1, aes(y=HNR05, x=Label, fill = Label)) +
+       geom_violin(trim=FALSE) + scale_fill_brewer(palette="Accent")
+     
+        # HNR15 = HNR between 0-1500Hz
+     ggplot(VSdataP1, aes(y=HNR15, x=Label, fill = Label)) +
+       geom_violin(trim=FALSE) + scale_fill_brewer(palette="Accent")
+     
+        # HNR25 = HNR between 0-2500Hz.
+     ggplot(VSdataP1, aes(y=HNR25, x=Label, fill = Label)) +
+       geom_violin(trim=FALSE) + scale_fill_brewer(palette="Accent")
+     
+               # ==> look exactly the same
      
 #----------------------------------------------------------------------------------------
 #Acoustics to explore-------------------------------------------------------
