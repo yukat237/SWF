@@ -150,8 +150,9 @@ ggplot(mDfB4, aes(fill=tone, y=duration, x=pair)) +
 
 
 
-# Creakness (using Voicesauce data) ----
-    #pair 1
+# Creakness (using Voicesauce data) -------------------
+
+  #pair 1-------------------------------------
     P1path <- paste0(currDir,'/pair1/output.txt')
     VSdataP1 <- read.delim(P1path, header = TRUE)
     #just checked the quality. it looks like perfectly taking the annotated segment and not the other parts.
@@ -161,6 +162,7 @@ ggplot(mDfB4, aes(fill=tone, y=duration, x=pair)) +
       # pf0 = praat 
       # shrf0 = Sun's subharmonic-to-harmonic Ratio
           # for our data, pF0 and oF0 not working. (o is for "Other")., but str and s are working!
+    
 #let's see if any of these seem to be getting the right measures.
 
       P1path <- paste0(currDir,'/pair1/output.txt')
@@ -197,11 +199,14 @@ ggplot(mDfB4, aes(fill=tone, y=duration, x=pair)) +
      ggplot(VSdataP1, aes(y=sF0, x=Label, fill = Label)) +
        geom_violin(trim=FALSE) + scale_fill_brewer(palette="Set3")
      
-      #just by looking at these, strf0 is working in the most right way?
+      #just by looking at these, strf0 is working in the most right way? Lu3 seem to be lower than the other 2.
       #but also this is getting average so not right?
       #maybe I should focus on minF0 for that data, and then do this visualizations.
      
      #for each data file, get the min strf0, and add a column for that.
+     
+            # do it later!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     
      
      # H1 (low = creakier)
       # H1c = corrected
@@ -212,7 +217,7 @@ ggplot(mDfB4, aes(fill=tone, y=duration, x=pair)) +
      ggplot(VSdataP1, aes(y=H1u, x=Label, fill = Label)) +
        geom_violin(trim=FALSE) + scale_fill_brewer(palette="YlOrRd")
      
-     # ==> look pretty much the same? maybe Lu2 is diff from Lu3 and 4
+          # ==> look pretty much the same? maybe Lu2 is diff from Lu3 and 4
      
      
      # H1-H2 (low = creakier)
