@@ -106,6 +106,10 @@ for (k in 1:filenum){
       acDf$pair <- gsub( "P_10", "P10", acDf$pair)
       #change Block 4 to B4
       acDf$block <- gsub("Block\\s+(\\d+)", "B\\1", acDf$block)
+      #merge df
+      basicinfoFULL$trial <- basicinfoFULL$itemID
+      library(dplyr)
+      mergedDf <- left_join(basicinfoFULL, acDf, by = c("pair" = "pair", "block"="block", "trial"="trial"))
       
       
 # Basic stats
