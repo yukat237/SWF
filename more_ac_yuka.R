@@ -115,7 +115,7 @@ for (k in 1:filenum){
       
 ### Basic stats   -------- 
       #possible things to look at:
-        # duration 
+        # duration  ---------------
             # differ by tones?
             # differ by correct vs incorrect items?
             # differ by block? (longer in 4 than 1?)
@@ -147,6 +147,20 @@ ggplot(mDfB4, aes(fill=tone, y=duration, x=pair)) +
   geom_bar(position = "dodge", stat = "identity") +
   scale_fill_brewer(palette="Paired")
 
+
+
+# Creakness (using Voicesauce data) 
+#pair 1
+P1path <- paste0(currDir,'/pair1/output.txt')
+VSdataP1 <- read.delim(P1path, header = TRUE)
+#just checked the quality. it looks like perfectly taking the annotated segment and not the other parts.
+#concern: failing to get f0...
+  # strf0= Straight by Kawahara 1998
+  # sF0 = Snack Sound Toolkit 
+  # pf0 = praat 
+  # shrf0 = Sun's subharmonic-to-harmonic Ratio
+      # for our data, pF0 and oF0 not working. (o is for "Other")., but str and s are working!
+#let's see if any of these seem to be getting the right measures.
 
       
 ###so let's loop through all files just for these basic data ----------------------------     
