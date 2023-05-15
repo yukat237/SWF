@@ -110,21 +110,44 @@ for (k in 1:filenum){
       basicinfoFULL$trial <- basicinfoFULL$itemID
       library(dplyr)
       mergedDf <- left_join(basicinfoFULL, acDf, by = c("pair" = "pair", "block"="block", "trial"="trial"))
+      #nrow(basicinfofull) = 933, nrow(acDf) = 959, nrow(mergedDf) = 933 (prob bc pair 2 is missing Lu 2 data) 
+      #stored in "Accuracy" column
       
-      
-# Basic stats
+### Basic stats   -------- 
       #possible things to look at:
         # duration 
             # differ by tones?
             # differ by correct vs incorrect items?
             # differ by block? (longer in 4 than 1?)
             # differ by pair? (successful pair has longer duration?)
+      mergedDf$pair <- as.factor(mergedDf$pair)
+      mergedDf$block <- as.factor(mergedDf$block)
+      mergedDf$tone <- as.factor(mergedDf$tone)
+      mergedDf$itemID <- as.factor(mergedDf$itemID)
       
-
-
-# Visualizations     
-
       
+      library(lme4)
+      durlmer<-lmer(duration~tone*block+(1|pair),data=mergedDf)
+      summary(durlmer)
+
+### Visualizations   --------  
+library(ggplot2)
+ggplot(mergedDf, aes(fill=tone, y=duration, x=block)) +
+  geom_bar(position = "dodge", stat = "identity") +
+  scale_fill_brewer(palette="Paired")
+
+#BY Pair. each bar merged all blocks.
+ggplot(mergedDf, aes(fill=tone, y=duration, x=pair)) +
+  geom_bar(position = "dodge", stat = "identity") +
+  scale_fill_brewer(palette="Paired")
+
+#above but only seeing B4.
+mDfB4<-mergedDf[mergedDf$block=="B4",]
+ggplot(mDfB4, aes(fill=tone, y=duration, x=pair)) +
+  geom_bar(position = "dodge", stat = "identity") +
+  scale_fill_brewer(palette="Paired")
+
+
       
 ###so let's loop through all files just for these basic data ----------------------------     
       
