@@ -163,7 +163,7 @@ ggplot(mDfB4, aes(fill=tone, y=duration, x=pair)) +
       # shrf0 = Sun's subharmonic-to-harmonic Ratio
           # for our data, pF0 and oF0 not working. (o is for "Other")., but str and s are working!
     
-#let's see if any of these seem to be getting the right measures.
+    #let's seethe measures.
 
       P1path <- paste0(currDir,'/pair1/output.txt')
       VSdataP1 <- read.delim(P1path, header = TRUE)
@@ -247,6 +247,110 @@ ggplot(mDfB4, aes(fill=tone, y=duration, x=pair)) +
        geom_violin(trim=FALSE) + scale_fill_brewer(palette="Accent")
      
                # ==> look exactly the same
+     
+     
+ 
+#pair 5-------------------------------------
+     P5path <- paste0(currDir,'/pair5/output.txt')
+     VSdataP5 <- read.delim(P5path, header = TRUE)
+     
+     #how many rows for 1 data file?
+     Onedata <-  VSdataP5[VSdataP5$Filename == "P5_lu2jiangjun_B1_T4_Matching.mat",]
+     # 304 data for one file.
+     
+     Onedata2 <- VSdataP5[VSdataP5$Filename == "P5_lu2jiangjun_B1_T19_Matching.mat",]
+     # 403 data for one file.
+     
+  
+     
+     #prep (commented out cus somhow worked without it )
+    # VSdataP1$Label <- as.factor(VSdataP1$Label)
+     
+     #strF0
+     ggplot(VSdataP5, aes(y=strF0, x=Label, fill = Label)) +
+       geom_violin(trim=FALSE) + scale_fill_brewer(palette="Set3")
+     # + scale_fill_discrete(palette="Dark2")
+     # + geom_boxplot(width = 0.1)
+     
+     
+     #sF0
+     ggplot(VSdataP5, aes(y=sF0, x=Label, fill = Label)) +
+       geom_violin(trim=FALSE) + scale_fill_brewer(palette="Set3")
+     
+     #just by looking at these, strf0 is working in the most right way? Lu3 seem to be lower than the other 2.
+     #but also this is getting average so not right?
+     #maybe I should focus on minF0 for that data, and then do this visualizations.
+     
+     #for each data file, get the min strf0, and add a column for that.
+     
+     # do it later!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     
+     
+     # H1 (low = creakier)
+     # H1c = corrected
+     ggplot(VSdataP5, aes(y=H1c, x=Label, fill = Label)) +
+       geom_violin(trim=FALSE) + scale_fill_brewer(palette="YlOrRd")
+     
+     # H1u + uncorrected
+     ggplot(VSdataP5, aes(y=H1u, x=Label, fill = Label)) +
+       geom_violin(trim=FALSE) + scale_fill_brewer(palette="YlOrRd")
+     
+     # ==> look pretty much the same? maybe Lu2 is diff from Lu3 and 4
+     
+     
+     # H1-H2 (low = creakier)
+     # H1H2c = corrected
+     ggplot(VSdataP5, aes(y=H1H2c, x=Label, fill = Label)) +
+       geom_violin(trim=FALSE) + scale_fill_brewer(palette="PuBuGn")
+     
+     
+     # H1H2u = uncorrected
+     ggplot(VSdataP5, aes(y=H1H2u, x=Label, fill = Label)) +
+       geom_violin(trim=FALSE) + scale_fill_brewer(palette="PuBuGn")
+     
+     # ==> a bit different?
+     
+     
+     # HNRs (lower = creakier)
+     # HNR05 = HNR between 0-500Hz
+     ggplot(VSdataP5, aes(y=HNR05, x=Label, fill = Label)) +
+       geom_violin(trim=FALSE) + scale_fill_brewer(palette="Accent")
+     
+     # HNR15 = HNR between 0-1500Hz
+     ggplot(VSdataP5, aes(y=HNR15, x=Label, fill = Label)) +
+       geom_violin(trim=FALSE) + scale_fill_brewer(palette="Accent")
+     
+     # HNR25 = HNR between 0-2500Hz.
+     ggplot(VSdataP5, aes(y=HNR25, x=Label, fill = Label)) +
+       geom_violin(trim=FALSE) + scale_fill_brewer(palette="Accent")
+     
+     # ==> look exactly the same
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+         
+     
+     
+     
      
 #----------------------------------------------------------------------------------------
 #Acoustics to explore-------------------------------------------------------
