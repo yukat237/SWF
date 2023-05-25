@@ -2,6 +2,11 @@
 ###  Yuka acoustic data exploration   ###
 #########################################
 
+#### notes for myself not looking at this for awhile ###
+#make sure you are running the parts that is good for your own environment now -- laptop or lab desktop
+#you can start from " # WORKING POINT " if just working on acoustics
+
+
 library(tidyverse)
 
 #Just seeing some examples-------------------------------------------------------
@@ -94,12 +99,15 @@ for (k in 1:filenum){
       # save the output
       write.table(basicinfoFULL, pathOut, sep = ",", row.names = F)
 
+# WORKING POINT
     #path of this df for my laptop: "C:\Users\yuka\Desktop\SWF\basicAC.csv"
     #to read it when working on laptop: 
       basicinfoFULL <- read.delim("/Users/yuka/Desktop/SWF/basicAC.csv", sep = ",")
       
     # combine accuracy data  
-      acDf <- read.delim("/Users/yuka/Desktop/SWF/processed_matching_data.csv", sep = ",")
+      acDf <- read.delim("/Users/yuka/Desktop/SWF/processed_matching_data.csv", sep = ",") #LAPTOP
+      acDf <- read.csv("/Users/yzt5262/OneDrive - The Pennsylvania State University/Desktop/Eric's study (SWF)/yuk_ac_analysis/processed_matching_data.csv") #DESKTOP
+
       #need to match by: pair, block, trial (tone differs as a result).
       #change P_01 to P1
       acDf$pair <- gsub( "P_0(\\d+)", "P\\1", acDf$pair)
@@ -147,7 +155,10 @@ ggplot(mDfB4, aes(fill=tone, y=duration, x=pair)) +
   geom_bar(position = "dodge", stat = "identity") +
   scale_fill_brewer(palette="Paired")
 
+#comparing duration of [lU2, lU4, lU3sandhi, lu3noSandhi]
+ # add column with this information in the mergedDf
 
+ # visualize 
 
 
 # Creakness (using Voicesauce data) -------------------
