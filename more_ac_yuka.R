@@ -139,7 +139,9 @@ for (k in 1:filenum){
       summary(durlmer)
 
 ### Visualizations   --------  
+      
 library(ggplot2)
+      
 ggplot(mergedDf, aes(fill=tone, y=duration, x=block)) +
   geom_bar(position = "dodge", stat = "identity") +
   scale_fill_brewer(palette="Paired")
@@ -157,10 +159,38 @@ ggplot(mDfB4, aes(fill=tone, y=duration, x=pair)) +
 
 #comparing duration of [lU2, lU4, lU3sandhi, lu3noSandhi]
  # add column with this information in the mergedDf
+mergedDf<-mergedDf %>%
+  mutate(condition = case_when(
+    grepl("lu2", filename)  ~ "Tone 2",
+    grepl("lu3jiangjun", filename)  ~ "Tone 3 noSandhi",
+    grepl("lu3zhentan", filename)  ~ "Tone 3 noSandhi",
+    grepl("lu3zhuren", filename)  ~ "Tone 3 Sandhi",
+    grepl("lu3jingguan", filename)  ~ "Tone 3 Sandhi",
+    grepl("lu4", filename)  ~ "Tone 4"
+  ))
 
- # visualize 
+ # visualize by pair
+　#Bar (less informative)
+ ggplot(mergedDf, aes(fill=condition, y=duration, x=pair)) +
+  geom_bar(position = "dodge", stat = "identity") +
+  scale_fill_brewer(palette="Set2")
+ 
+ #violin (good!)
 
-
+ ggplot(mergedDf, aes(fill=condition, y=duration, x=pair)) +
+   geom_violin(trim=FALSE) +
+   geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.9)) +
+   scale_fill_brewer(palette="Set2")+
+   theme_minimal()
+ 
+ #box (my favorite)
+ ggplot(mergedDf, aes(fill=condition, y=duration, x=pair)) +
+   geom_boxplot() + 
+   geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
+   scale_fill_brewer(palette="Set2")+
+   theme_minimal()
+   
+ 
 # Creakness (using Voicesauce data) -------------------
 
   #pair 1-------------------------------------
