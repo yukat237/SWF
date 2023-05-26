@@ -120,7 +120,14 @@ for (k in 1:filenum){
       mergedDf <- left_join(basicinfoFULL, acDf, by = c("pair" = "pair", "block"="block", "trial"="trial"))
       #nrow(basicinfofull) = 933, nrow(acDf) = 959, nrow(mergedDf) = 933 (prob bc pair 2 is missing Lu 2 data) 
       #stored in "Accuracy" column
+
+  #Deleting some data that I realized later that are doubled
+      nrow(mergedDf)
+      mergedDf <- mergedDf %>% distinct()
+      nrow(mergedDf)
       
+      
+            
 ### Basic stats   -------- 
       #possible things to look at:
         # duration  ---------------
@@ -190,6 +197,39 @@ mergedDf<-mergedDf %>%
    scale_fill_brewer(palette="Set2")+
    theme_minimal()
    
+  #any sig differences between each condition, within each pair?
+ 
+ #pair1
+  P1data<- mergedDf[mergedDf$pair == "P1",]
+  P1data$condition <- as.factor(P1data$condition)
+  P1data$duration<-  as.numeric(P1data$duration)
+  
+  anova1<-aov(duration ~ condition, data = P1data)
+  summary(anova1)
+  TukeyHSD(anova1)
+    # RESULTS
+      # T3nosandhi - T2 : ***
+      # Tone 3 Sandhi-Tone 2: ***
+      # T4 - T3nosandhi: ***
+      # T4 - T3sandhi: ***
+  
+  
+  library(rstatix)
+ res.aov <- anova_test(
+ data = P1data, dv = duration, wid = filename,
+ within = condition)
+      #this gives me an error because 6 rows are sharing the same keys!! (there are 3 pairs of data that is the same name?!?!?)
+get_anova_table(res.aov)
+
+#another ANOVA for MSE(mean squared error)
+library("ez")
+anova2<-ezANOVA(data = P1data,
+                dv = .(duration),
+                wid = .(filename),
+                within = .(condition),
+                detailed = TRUE)
+ 
+ 
  
 # Creakness (using Voicesauce data) -------------------
 
@@ -430,8 +470,11 @@ mergedDf<-mergedDf %>%
       # in the pitch contour relative to its surrounding pitch points. Given that the lowest F0 occurred in the different positions of the modal Tones
       # 2, 3, and 4, the corresponding extra-low F0s were in the same regions (beginning of T2, middle of T3, and end of T4). 
 
-#-----
-#
+#-------------------------------------------------------------
+# useful code to test
+     print(P1data %>% 
+             +     group_by(filename) %>%
+             +     summarise(no_rows = length(filename)), n= 10000)
 
 
 
