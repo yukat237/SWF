@@ -105,8 +105,10 @@ for (k in 1:filenum){
       basicinfoFULL <- read.delim("/Users/yuka/Desktop/SWF/basicAC.csv", sep = ",")
       
     # combine accuracy data  
-      acDf <- read.delim("/Users/yuka/Desktop/SWF/processed_matching_data.csv", sep = ",") #LAPTOP
-      acDf <- read.csv("/Users/yzt5262/OneDrive - The Pennsylvania State University/Desktop/Eric's study (SWF)/yuk_ac_analysis/processed_matching_data.csv") #DESKTOP
+      #LAPTOP
+      acDf <- read.delim("/Users/yuka/Desktop/SWF/processed_matching_data.csv", sep = ",") 
+      #DESKTOP
+      acDf <- read.csv("/Users/yzt5262/OneDrive - The Pennsylvania State University/Desktop/Eric's study (SWF)/yuk_ac_analysis/processed_matching_data.csv") 
 
       #need to match by: pair, block, trial (tone differs as a result).
       #change P_01 to P1
@@ -124,7 +126,7 @@ for (k in 1:filenum){
   #Deleting some data that I realized later that are doubled
       nrow(mergedDf)
       mergedDf <- mergedDf %>% distinct()
-      nrow(mergedDf)
+      nrow(mergedDf) #checking
       
       
             
@@ -197,7 +199,7 @@ mergedDf<-mergedDf %>%
    scale_fill_brewer(palette="Set2")+
    theme_minimal()
    
-  #any sig differences between each condition, within each pair?
+#any sig differences between each condition, within each pair?
  
  #pair1
   P1data<- mergedDf[mergedDf$pair == "P1",]
@@ -213,23 +215,125 @@ mergedDf<-mergedDf %>%
       # T4 - T3nosandhi: ***
       # T4 - T3sandhi: ***
   
+  #pair2
+  P2data<- mergedDf[mergedDf$pair == "P2",]
+  P2data$condition <- as.factor(P2data$condition)
+  P2data$duration<-  as.numeric(P2data$duration)
   
-  library(rstatix)
- res.aov <- anova_test(
- data = P1data, dv = duration, wid = filename,
- within = condition)
-      #this gives me an error because 6 rows are sharing the same keys!! (there are 3 pairs of data that is the same name?!?!?)
-get_anova_table(res.aov)
-
-#another ANOVA for MSE(mean squared error)
-library("ez")
-anova2<-ezANOVA(data = P1data,
-                dv = .(duration),
-                wid = .(filename),
-                within = .(condition),
-                detailed = TRUE)
+  anova2<-aov(duration ~ condition, data = P2data)
+  summary(anova2)
+  TukeyHSD(anova2)
+  # RESULTS
+  # T3 Sandhi-Tone 2: *
+  # T3 Sandhi-T3 noSandhi: ***
+  # T4 - T3sandhi: ***
+  
+  #pair3
+  P3data<- mergedDf[mergedDf$pair == "P3",]
+  P3data$condition <- as.factor(P3data$condition)
+  P3data$duration<-  as.numeric(P3data$duration)
+  
+  anova3<-aov(duration ~ condition, data = P3data)
+  summary(anova3)
+  TukeyHSD(anova3)
+  # RESULTS
+  # T4 - T3 noSandhi: *
+  # T4 - T3sandhi: *
+  
+  #pair4
+  P4data<- mergedDf[mergedDf$pair == "P4",]
+  P4data$condition <- as.factor(P4data$condition)
+  P4data$duration<-  as.numeric(P4data$duration)
+  
+  anova4<-aov(duration ~ condition, data = P4data)
+  summary(anova4)
+  TukeyHSD(anova4)
+  # RESULTS (* < 0.05, ** < 0.01, *** < 0.001)
+  # T3 Sandhi-T2: ***
+  # T3 Sandhi - T3 noSandhi: **
+  # T4 - T3sandhi: ***
+  
+  #pair5
+  P5data<- mergedDf[mergedDf$pair == "P5",]
+  P5data$condition <- as.factor(P5data$condition)
+  P5data$duration<-  as.numeric(P5data$duration)
+  
+  anova5<-aov(duration ~ condition, data = P5data)
+  summary(anova5)
+  TukeyHSD(anova5)
+  # RESULTS (* < 0.05, ** < 0.01, *** < 0.001)
+  # T3 noSandhi-T2: *
+  # T4 - T3 noSandhi: ***
+  # T4 - T3sandhi: **
+  
+  #pair6
+  P6data<- mergedDf[mergedDf$pair == "P6",]
+  P6data$condition <- as.factor(P6data$condition)
+  P6data$duration<-  as.numeric(P6data$duration)
+  
+  anova6<-aov(duration ~ condition, data = P6data)
+  summary(anova6)
+  TukeyHSD(anova6)
+  # RESULTS (* < 0.05, ** < 0.01, *** < 0.001)
+  # T3 Sandhi-T2: ***
+  # T4 - T2: **
+  # T3 Sandhi - T3 noSandhi: **
+  # T4 - T3 noSandhi: *
+  # T4 - T3 sandhi: ***
  
- 
+  #pair7
+  P7data<- mergedDf[mergedDf$pair == "P7",]
+  P7data$condition <- as.factor(P7data$condition)
+  P7data$duration<-  as.numeric(P7data$duration)
+  
+  anova7<-aov(duration ~ condition, data = P7data)
+  summary(anova7)
+  TukeyHSD(anova7)
+  # RESULTS (* < 0.05, ** < 0.01, *** < 0.001)
+  # T3 Sandhi- T2: **
+  # T4 - T3 sandhi: *
+  
+  #pair8
+  P8data<- mergedDf[mergedDf$pair == "P8",]
+  P8data$condition <- as.factor(P8data$condition)
+  P8data$duration<-  as.numeric(P8data$duration)
+  
+  anova8<-aov(duration ~ condition, data = P8data)
+  summary(anova8)
+  TukeyHSD(anova8)
+  # RESULTS (* < 0.05, ** < 0.01, *** < 0.001)
+  # Tone 3 Sandhi-Tone 2: **
+  # Tone 4-Tone 2: **
+  # Tone 4-Tone 3 noSandhi: ** (0.0010892)
+  # Tone 4-Tone 3 Sandhi: ***
+  
+  #pair9
+  P9data<- mergedDf[mergedDf$pair == "P9",]
+  P9data$condition <- as.factor(P9data$condition)
+  P9data$duration<-  as.numeric(P9data$duration)
+  
+  anova9<-aov(duration ~ condition, data = P9data)
+  summary(anova9)
+  TukeyHSD(anova9)
+  # RESULTS (* < 0.05, ** < 0.01, *** < 0.001)
+  # Tone 4-Tone 3 noSandhi: *
+  # Tone 4-Tone 3 Sandhi: **
+  
+  #pair10
+  P10data<- mergedDf[mergedDf$pair == "P10",]
+  P10data$condition <- as.factor(P10data$condition)
+  P10data$duration<-  as.numeric(P10data$duration)
+  
+  anova10<-aov(duration ~ condition, data = P10data)
+  summary(anova10)
+  TukeyHSD(anova10)
+  # RESULTS (* < 0.05, ** < 0.01, *** < 0.001)
+  # Tone 4-Tone 2: ***
+  # Tone 3 Sandhi-Tone 3 noSandhi: ** (0.0033333)
+  # Tone 4-Tone 3 Sandhi: ***
+  
+  
+  
  
 # Creakness (using Voicesauce data) -------------------
 
@@ -482,6 +586,26 @@ anova2<-ezANOVA(data = P1data,
 #==========================================================
 #==========================trash===========================
 #==========================================================
+# Other anova1 
+     library(rstatix)
+     res.aov <- anova_test(
+       data = P1data, dv = duration, wid = filename,
+       within = condition)
+     #this gives me an error because 6 rows are sharing the same keys!! (there are 3 pairs of data that is the same name?!?!?)
+     get_anova_table(res.aov)
+     
+     #another ANOVA for MSE(mean squared error)
+     library("ez")
+     anova2<-ezANOVA(data = P1data,
+                     dv = .(duration),
+                     wid = .(filename),
+                     within = .(condition),
+                     detailed = TRUE)
+     
+     
+     
+     
+     
      VSdataP1[VSdataP1$Label] == as.character(factorsList[2]),]
 factorsList<-unique(VSdataP1$Label)
 
