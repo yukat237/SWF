@@ -101,8 +101,10 @@ for (k in 1:filenum){
 
 # WORKING POINT
     #path of this df for my laptop: "C:\Users\yuka\Desktop\SWF\basicAC.csv"
-    #to read it when working on laptop: 
+    #to read it when working on LAPTOP: 
       basicinfoFULL <- read.delim("/Users/yuka/Desktop/SWF/basicAC.csv", sep = ",")
+    #to read when working on DESKTOP:
+      basicinfoFULL <- read.delim("/Users/yzt5262/OneDrive - The Pennsylvania State University/Desktop/Eric's study (SWF)/yuk_ac_analysis/basicAC.csv", sep = ",")
       
     # combine accuracy data  
       #LAPTOP
@@ -333,8 +335,203 @@ mergedDf<-mergedDf %>%
   # Tone 4-Tone 3 Sandhi: ***
   
   
+#Visualization by pair (f0mean)
   
+  #Bar (less informative)
+  ggplot(mergedDf, aes(fill=condition, y=f0mean, x=pair)) +
+    geom_bar(position = "dodge", stat = "identity") +
+    scale_fill_brewer(palette="Set1")
+  
+  #violin (good!)
+  
+  ggplot(mergedDf, aes(fill=condition, y=f0mean, x=pair)) +
+    geom_violin(trim=FALSE) +
+    geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.9)) +
+    scale_fill_brewer(palette="Set1")+
+    theme_minimal()
+  
+  #box (my favorite)
+  ggplot(mergedDf, aes(fill=condition, y=f0mean, x=pair)) +
+    geom_boxplot() + 
+    geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
+    scale_fill_brewer(palette="Set1")+
+    theme_minimal()
+  
+  mergedDf$Participant <- as.factor(mergedDf$Participant)
+  #Visualization by pair & person (f0mean)
+  mergedDf$Participant <- as.factor(mergedDf$Participant)
+  ggplot(mergedDf, aes(y = f0mean, x = Participant, fill = condition)) +
+    geom_boxplot() +
+    facet_grid(. ~ pair) +
+    geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
+    scale_fill_brewer(palette="Set1")+
+    theme_bw()
+  
+  
+#stats---
+  #pair1
+   aovf0mean1<-aov(f0mean ~ condition*Participant, data = P1data)
+  summary(aovf0mean1)
+  TukeyHSD(aovf0mean1)
+  # RESULTS (* < 0.05, ** < 0.01, *** < 0.001)
+  #  Tone 4:Listener-Tone 2:Listener                   33.057837  20.845546  45.270127 0.0000000
+  #  Tone 2:Speaker-Tone 2:Listener                    39.735514  27.523223  51.947804 0.0000000
+  #  Tone 3 noSandhi:Speaker-Tone 2:Listener           26.770041  11.813100  41.726981 0.0000078
+  #  Tone 4:Speaker-Tone 2:Listener                    65.548164  53.335874  77.760455 0.0000000
+  #  Tone 4:Listener-Tone 3 noSandhi:Listener          39.415904  24.458964  54.372844 0.0000000
+  #  Tone 2:Speaker-Tone 3 noSandhi:Listener           46.093581  31.136641  61.050521 0.0000000
+  #  Tone 3 noSandhi:Speaker-Tone 3 noSandhi:Listener  33.128108  15.857321  50.398895 0.0000014
+  #  Tone 4:Speaker-Tone 3 noSandhi:Listener           71.906232  56.949292  86.863172 0.0000000
+  #  Tone 4:Listener-Tone 3 Sandhi:Listener            28.971498  14.014558  43.928439 0.0000011
+  #  Tone 2:Speaker-Tone 3 Sandhi:Listener             35.649175  20.692235  50.606116 0.0000000
+  #  Tone 3 noSandhi:Speaker-Tone 3 Sandhi:Listener    22.683702   5.412915  39.954489 0.0024301
+  #  Tone 4:Speaker-Tone 3 Sandhi:Listener             61.461826  46.504886  76.418766 0.0000000
+  #  Tone 3 Sandhi:Speaker-Tone 4:Listener            -31.268289 -46.225229 -16.311348 0.0000001
+  #  Tone 4:Speaker-Tone 4:Listener                    32.490328  20.278037  44.702618 0.0000000
+  #  Tone 3 Sandhi:Speaker-Tone 2:Speaker             -37.945966 -52.902906 -22.989025 0.0000000
+  #  Tone 4:Speaker-Tone 2:Speaker                     25.812651  13.600360  38.024941 0.0000001
+  #  Tone 3 Sandhi:Speaker-Tone 3 noSandhi:Speaker    -24.980493 -42.251280  -7.709706 0.0005485
+  #  Tone 4:Speaker-Tone 3 noSandhi:Speaker            38.778124  23.821184  53.735064 0.0000000
+  #  Tone 4:Speaker-Tone 3 Sandhi:Speaker              63.758616  48.801676  78.715557 0.0000000
+  
+  #pair2
+  aovf0mean2<-aov(f0mean ~ condition*Participant, data = P2data)
+  summary(aovf0mean2)
+  TukeyHSD(aovf0mean2)
+  
+  
+  #pair3 (this is completely dif betw individuals--)
+  aovf0mean3<-aov(f0mean ~ condition*Participant, data = P3data)
+  summary(aovf0mean3)
+  TukeyHSD(aovf0mean3)
+
+  #pair4
+  aovf0mean4<-aov(f0mean ~ condition*Participant, data = P4data)
+  summary(aovf0mean4)
+  TukeyHSD(aovf0mean4)
+  
+  #pair5
+  aovf0mean5<-aov(f0mean ~ condition*Participant, data = P5data)
+  summary(aovf0mean5)
+  TukeyHSD(aovf0mean5)
+  
+  #pair6
+  aovf0mean6<-aov(f0mean ~ condition*Participant, data = P6data)
+  summary(aovf0mean6)
+  TukeyHSD(aovf0mean6)
+  
+  #pair7
+  aovf0mean7<-aov(f0mean ~ condition*Participant, data = P7data)
+  summary(aovf0mean7)
+  TukeyHSD(aovf0mean7)
+  
+  #pair8
+  aovf0mean8<-aov(f0mean ~ condition*Participant, data = P8data)
+  summary(aovf0mean8)
+  TukeyHSD(aovf0mean8)
+  
+  #pair9
+  aovf0mean9<-aov(f0mean ~ condition*Participant, data = P9data)
+  summary(aovf0mean9)
+  TukeyHSD(aovf0mean9)
+  
+  #pair10
+  aovf0mean10<-aov(f0mean ~ condition*Participant, data = P10data)
+  summary(aovf0mean10)
+  TukeyHSD(aovf0mean10)
+    
  
+  
+  
+  #Visualization by pair (f0range)
+  
+  #Bar (less informative)
+  ggplot(mergedDf, aes(fill=condition, y=f0range, x=pair)) +
+    geom_bar(position = "dodge", stat = "identity") +
+    scale_fill_brewer(palette="Set1")
+  
+  #violin 
+  ggplot(mergedDf, aes(fill=condition, y=f0range, x=pair)) +
+    geom_violin(trim=FALSE) +
+    geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.9)) +
+    scale_fill_brewer(palette="Set1")+
+    theme_minimal()
+  
+  #box (my favorite)
+  ggplot(mergedDf, aes(fill=condition, y=f0range, x=pair)) +
+    geom_boxplot() + 
+    geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
+    scale_fill_brewer(palette="Set1")+
+    theme_minimal()
+  
+  #Visualization by pair & person 
+  mergedDf$Participant <- as.factor(mergedDf$Participant)
+  ggplot(mergedDf, aes(y = f0range, x = Participant, fill = condition)) +
+    geom_boxplot() +
+    facet_grid(. ~ pair) +
+    geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
+    scale_fill_brewer(palette="Set1")+
+    theme_bw()
+  
+  #pair1
+  aovf0range1<-aov(f0range ~ condition*Participant, data = P1data)
+  summary(aovf0range1)
+  TukeyHSD(aovf0range1)
+  
+  #pair2
+  aovf0range2<-aov(f0range ~ condition*Participant, data = P2data)
+  summary(aovf0range2)
+  TukeyHSD(aovf0range2)
+  
+  
+  #pair3 (this is completely dif betw individuals--)
+  aovf0range3<-aov(f0range ~ condition*Participant, data = P3data)
+  summary(aovf0mean3)
+  TukeyHSD(aovf0mean3)
+  
+  #pair4
+  aovf0range4<-aov(f0range ~ condition*Participant, data = P4data)
+  summary(aovf0range4)
+  TukeyHSD(aovf0range4)
+  
+  #pair5
+  aovf0range5<-aov(f0range ~ condition*Participant, data = P5data)
+  summary(aovf0range5)
+  TukeyHSD(aovf0range5)
+  
+  #pair6
+  aovf0range6<-aov(f0range ~ condition*Participant, data = P6data)
+  summary(aovf0range6)
+  TukeyHSD(aovf0range6)
+  
+  #pair7
+  aovf0range7<-aov(f0range ~ condition*Participant, data = P7data)
+  summary(aovf0range7)
+  TukeyHSD(aovf0range7)
+  
+  #pair8
+  aovf0range8<-aov(f0range ~ condition*Participant, data = P8data)
+  summary(aovf0range8)
+  TukeyHSD(aovf0range8)
+  
+  #pair9
+  aovf0range9<-aov(f0range ~ condition*Participant, data = P9data)
+  summary(aovf0mean9)
+  TukeyHSD(aovf0mean9)
+  
+  #pair10
+  aovf0range10<-aov(f0range ~ condition*Participant, data = P10data)
+  summary(aovf0range10)
+  TukeyHSD(aovf0range10)
+  
+  
+  
+  
+  
+  
+  
+  
+  
 # Creakness (using Voicesauce data) -------------------
 
   #pair 1-------------------------------------
