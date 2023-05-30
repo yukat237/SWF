@@ -335,6 +335,69 @@ mergedDf<-mergedDf %>%
   # Tone 4-Tone 3 Sandhi: ***
   
   
+# Duration ～ Speaker  *  conditions !!!!!!!!!!
+  
+  #Visualization by pair & person (duration)
+  mergedDf$Participant <- as.factor(mergedDf$Participant)
+  ggplot(mergedDf, aes(y = duration, x = Participant, fill = condition)) +
+    geom_boxplot() +
+    facet_grid(. ~ pair) +
+    geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
+    scale_fill_brewer(palette="Set2")+
+    theme_bw()
+  
+  #pair1
+  aovdur1<-aov(f0range ~ condition*Participant, data = P1data)
+  summary(aovdur1)
+  TukeyHSD(aovdur1)
+  
+  #pair2
+  aovdur2<-aov(f0range ~ condition*Participant, data = P2data)
+  summary(aovdur2)
+  TukeyHSD(aovdur2)
+  
+  
+  #pair3 (this is completely dif betw individuals--)
+  aovdur3<-aov(f0range ~ condition*Participant, data = P3data)
+  summary(aovdur3)
+  TukeyHSD(aovdur3)
+  
+  #pair4
+  aovdur4<-aov(f0range ~ condition*Participant, data = P4data)
+  summary(aovdur4)
+  TukeyHSD(aovdur4)
+  
+  #pair5
+  aovdur5<-aov(f0range ~ condition*Participant, data = P5data)
+  summary(aovdur5)
+  TukeyHSD(aovdur5)
+  
+  #pair6
+  aovdur6<-aov(f0range ~ condition*Participant, data = P6data)
+  summary(aovdur6)
+  TukeyHSD(aovdur6)
+  
+  #pair7
+  aovdur7<-aov(f0range ~ condition*Participant, data = P7data)
+  summary(aovdur7)
+  TukeyHSD(aovdur7)
+  
+  #pair8
+  aovdur8<-aov(f0range ~ condition*Participant, data = P8data)
+  summary(aovdur8)
+  TukeyHSD(aovdur8)
+  
+  #pair9
+  aovdur9<-aov(f0range ~ condition*Participant, data = P9data)
+  summary(aovdur9)
+  TukeyHSD(aovdur9)
+  
+  #pair10
+  aovdur10<-aov(f0range ~ condition*Participant, data = P10data)
+  summary(aovdur10)
+  TukeyHSD(aovdur10)
+  
+  
 #Visualization by pair (f0mean)
   
   #Bar (less informative)
