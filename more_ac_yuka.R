@@ -130,6 +130,53 @@ for (k in 1:filenum){
       mergedDf <- mergedDf %>% distinct()
       nrow(mergedDf) #checking
       
+
+### Behavioral (Accuracy) -------  
+      
+      ##overall descriptive stats---
+      
+      #stats - T2
+      mergedDfT2<- mergedDf[mergedDf$condition == "Tone 2",]
+      table(mergedDfT2$Accuracy)
+        #across pairs, T2 correct = 273, T2 incorrect = 18
+      
+      #stats - T3 noSandhi
+      mergedDfT3ns<- mergedDf[mergedDf$condition == "Tone 3 noSandhi",]
+      table(mergedDfT3ns$Accuracy)
+        #across pairs, T3nS correct = 156, T2 incorrect = 4
+      
+      #stats - T3 Sandhi
+      mergedDfT3s<- mergedDf[mergedDf$condition == "Tone 3 Sandhi",]
+      table(mergedDfT3s$Accuracy)
+      #across pairs, T3nS correct = 135, T2 incorrect = 24
+      
+      #stats - T4
+      mergedDfT4<- mergedDf[mergedDf$condition == "Tone 4",]
+      table(mergedDfT4$Accuracy)
+      #across pairs, T3nS correct = 319, T2 incorrect = 1
+      
+      ##kind of want to consider by pair...
+      
+      #T2
+      table(mergedDfT2$Accuracy, mergedDfT2$pair)
+      # from 1, 10, 2 -- 9,
+        # 2, 2, 1, 4, 2, 1, 0, 1, 1, 4
+      
+      #T3nS
+      table(mergedDfT3ns$Accuracy, mergedDfT3ns$pair)
+        # P1 - 1 Incorrect
+        # P4 - 2 Incorrect
+        # P9 - 1 Incorrect
+        # all other pairs - 0 Incorrect
+      
+      #T3S
+      table(mergedDfT3s$Accuracy, mergedDfT3s$pair)
+        # from 1, 10, 2 -- 9,
+            # 3,2,2,5,1,2,1,2,1,5
+      
+      #T4
+      table(mergedDfT4$Accuracy, mergedDfT4$pair)
+        # 1 error from Pair 10
       
             
 ### Basic stats   -------- 
@@ -151,12 +198,73 @@ for (k in 1:filenum){
 
       #very general tone diff (across pairs, blocks, and individuals)
       
-      ggplot(mergedDf, aes(y=duration, x=tone)) +
-        geom_violin(aes(fill = tone)) +theme_bw()
+      #DURATION---------------
+        #violin
+        ggplot(mergedDf, aes(y=duration, x=condition)) +
+          geom_violin(aes(fill = condition)) +theme_bw()+ 
+        stat_summary(fun = "mean",
+                     geom = "point",
+                     aes(color = "Mean")) +
+        stat_summary(fun = "median",
+                     geom = "point",
+                     aes(color = "Median")) +
+        scale_colour_manual(values = c("red", "blue"), name = "")
+        #boxplot
+        ggplot(mergedDf, aes(y=duration, x=condition)) +
+          geom_boxplot(aes(fill = condition)) +theme_bw()
+        # +scale_fill_brewer(palette="BuPu")
       
-      anovaToneGen<-aov(duration ~ tone, data = mergedDf)
-      summary(anovaToneGen)
-      TukeyHSD(anovaToneGen)
+        anovaGenDur<-aov(duration ~ condition, data = mergedDf)
+        summary(anovaGenDur)
+        TukeyHSD(anovaGenDur)
+        
+        #the only difference observed is T3nS and T2 
+      
+      #f0mean----------------
+        #violin
+        ggplot(mergedDf, aes(y=f0mean, x=condition)) +
+          geom_violin(aes(fill = condition)) +theme_bw()+ 
+          stat_summary(fun = "mean",
+                       geom = "point",
+                       aes(color = "Mean")) +
+          stat_summary(fun = "median",
+                       geom = "point",
+                       aes(color = "Median")) +
+          scale_colour_manual(values = c("red", "blue"), name = "")
+        #boxplot
+        ggplot(mergedDf, aes(y=f0mean, x=condition)) +
+          geom_boxplot(aes(fill = condition)) +theme_bw()
+        # +scale_fill_brewer(palette="BuPu")
+        
+        anovaGenF0M<-aov(f0mean ~ condition, data = mergedDf)
+        summary(anovaGenF0M)
+        TukeyHSD(anovaGenF0M)
+        #SIG: T3nS - T2, T3S - T2, T4 - T2, T4 - T3nS, T4 - T3S
+        #nonSIG: T3nS - T3S
+        # differentiation between sandhi conditions within T3
+        
+      #f0range----------------(each data point = range of Hz for the tone.)
+        #violin
+        ggplot(mergedDf, aes(y=f0range, x=condition)) +
+          geom_violin(aes(fill = condition)) +theme_bw()+ 
+          stat_summary(fun = "mean",
+                       geom = "point",
+                       aes(color = "Mean")) +
+          stat_summary(fun = "median",
+                       geom = "point",
+                       aes(color = "Median")) +
+          scale_colour_manual(values = c("red", "blue"), name = "")
+        #boxplot
+        ggplot(mergedDf, aes(y=f0range, x=condition)) +
+          geom_boxplot(aes(fill = condition)) +theme_bw()
+        # +scale_fill_brewer(palette="BuPu")
+            #T4 has higher mean of f0range than the other 3 groups. = T4 has the widest range of f0
+        
+        
+        anovaGenF0R<-aov(f0range ~ condition, data = mergedDf)
+        summary(anovaGenF0R)
+        TukeyHSD(anovaGenF0R)       
+          #No difference among T2, T3, T3sandhi (diff only found with T4)
       
 ### Visualizations   --------  
       
