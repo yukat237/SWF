@@ -149,6 +149,15 @@ for (k in 1:filenum){
       durlmer<-lmer(duration~tone*block+(1|pair),data=mergedDf)
       summary(durlmer)
 
+      #very general tone diff (across pairs, blocks, and individuals)
+      
+      ggplot(mergedDf, aes(y=duration, x=tone)) +
+        geom_violin(aes(fill = tone)) +theme_bw()
+      
+      anovaToneGen<-aov(duration ~ tone, data = mergedDf)
+      summary(anovaToneGen)
+      TukeyHSD(anovaToneGen)
+      
 ### Visualizations   --------  
       
 library(ggplot2)
@@ -347,53 +356,53 @@ mergedDf<-mergedDf %>%
     theme_bw()
   
   #pair1
-  aovdur1<-aov(f0range ~ condition*Participant, data = P1data)
+  aovdur1<-aov(duration ~ condition*Participant, data = P1data)
   summary(aovdur1)
   TukeyHSD(aovdur1)
   
   #pair2
-  aovdur2<-aov(f0range ~ condition*Participant, data = P2data)
+  aovdur2<-aov(duration ~ condition*Participant, data = P2data)
   summary(aovdur2)
   TukeyHSD(aovdur2)
   
   
   #pair3 (this is completely dif betw individuals--)
-  aovdur3<-aov(f0range ~ condition*Participant, data = P3data)
+  aovdur3<-aov(duration ~ condition*Participant, data = P3data)
   summary(aovdur3)
   TukeyHSD(aovdur3)
   
   #pair4
-  aovdur4<-aov(f0range ~ condition*Participant, data = P4data)
+  aovdur4<-aov(duration ~ condition*Participant, data = P4data)
   summary(aovdur4)
   TukeyHSD(aovdur4)
   
   #pair5
-  aovdur5<-aov(f0range ~ condition*Participant, data = P5data)
+  aovdur5<-aov(duration ~ condition*Participant, data = P5data)
   summary(aovdur5)
   TukeyHSD(aovdur5)
   
   #pair6
-  aovdur6<-aov(f0range ~ condition*Participant, data = P6data)
+  aovdur6<-aov(duration ~ condition*Participant, data = P6data)
   summary(aovdur6)
   TukeyHSD(aovdur6)
   
   #pair7
-  aovdur7<-aov(f0range ~ condition*Participant, data = P7data)
+  aovdur7<-aov(duration ~ condition*Participant, data = P7data)
   summary(aovdur7)
   TukeyHSD(aovdur7)
   
   #pair8
-  aovdur8<-aov(f0range ~ condition*Participant, data = P8data)
+  aovdur8<-aov(duration ~ condition*Participant, data = P8data)
   summary(aovdur8)
   TukeyHSD(aovdur8)
   
   #pair9
-  aovdur9<-aov(f0range ~ condition*Participant, data = P9data)
+  aovdur9<-aov(duration ~ condition*Participant, data = P9data)
   summary(aovdur9)
   TukeyHSD(aovdur9)
   
   #pair10
-  aovdur10<-aov(f0range ~ condition*Participant, data = P10data)
+  aovdur10<-aov(duration ~ condition*Participant, data = P10data)
   summary(aovdur10)
   TukeyHSD(aovdur10)
   
