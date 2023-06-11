@@ -144,7 +144,7 @@ for (k in 1:filenum){
       mergedDf$tone <- as.factor(mergedDf$tone)
       mergedDf$itemID <- as.factor(mergedDf$itemID)
       
-      
+      # skip 
       library(lme4)
       durlmer<-lmer(duration~tone*block+(1|pair),data=mergedDf)
       summary(durlmer)
@@ -407,7 +407,7 @@ mergedDf<-mergedDf %>%
   TukeyHSD(aovdur10)
   
   
-#Visualization by pair (f0mean)
+#Visualization by pair (f0mean)------
   
   #Bar (less informative)
   ggplot(mergedDf, aes(fill=condition, y=f0mean, x=pair)) +
@@ -440,7 +440,7 @@ mergedDf<-mergedDf %>%
     theme_bw()
   
   
-#stats---
+#stats ---
   #pair1
    aovf0mean1<-aov(f0mean ~ condition*Participant, data = P1data)
   summary(aovf0mean1)
@@ -515,21 +515,22 @@ mergedDf<-mergedDf %>%
  
   
   
-  #Visualization by pair (f0range)
+###Visualization by pair (f0range) -------
   
   #Bar (less informative)
   ggplot(mergedDf, aes(fill=condition, y=f0range, x=pair)) +
     geom_bar(position = "dodge", stat = "identity") +
     scale_fill_brewer(palette="Set1")
   
-  #violin 
-  ggplot(mergedDf, aes(fill=condition, y=f0range, x=pair)) +
+  #violin (updated for speaker-wise)
+  ggplot(mergedDf, aes(fill=condition, y=f0range, x= Participant)) +
     geom_violin(trim=FALSE) +
+    facet_grid(. ~ pair) +
     geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.9)) +
     scale_fill_brewer(palette="Set1")+
-    theme_minimal()
+    theme_bw()
   
-  #box (my favorite)
+  #box 
   ggplot(mergedDf, aes(fill=condition, y=f0range, x=pair)) +
     geom_boxplot() + 
     geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
@@ -558,8 +559,8 @@ mergedDf<-mergedDf %>%
   
   #pair3 (this is completely dif betw individuals--)
   aovf0range3<-aov(f0range ~ condition*Participant, data = P3data)
-  summary(aovf0mean3)
-  TukeyHSD(aovf0mean3)
+  summary(aovf0range3)
+  TukeyHSD(aovf0range3)
   
   #pair4
   aovf0range4<-aov(f0range ~ condition*Participant, data = P4data)
@@ -588,8 +589,8 @@ mergedDf<-mergedDf %>%
   
   #pair9
   aovf0range9<-aov(f0range ~ condition*Participant, data = P9data)
-  summary(aovf0mean9)
-  TukeyHSD(aovf0mean9)
+  summary(aovf0range9)
+  TukeyHSD(aovf0range9)
   
   #pair10
   aovf0range10<-aov(f0range ~ condition*Participant, data = P10data)

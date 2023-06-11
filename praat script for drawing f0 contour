@@ -1,0 +1,89 @@
+##Draw f0 contour##
+
+
+
+form Directory
+	comment folder for the Pitch objects? (specify the pair number)
+	sentence pitchFolder C:/Users/yzt5262/OneDrive - The Pennsylvania State University/Desktop/Eric's study (SWF)/yuk_ac_analysis/pitchObj/p1
+endform
+
+
+piListID = Create Strings as file list: "Pitch filename list", pitchFolder$
+fileNumPi = Get number of strings
+
+
+#-------------blocking--------------
+for i to fileNumPi
+
+selectObject: piListID
+piName$ = Get string: i
+# --write a code to get Block info---
+
+#then, 
+piListB1_ID 
+piListB2_ID 
+piListB3_ID 
+piListB4_ID 
+
+endfor
+
+#-------------drawing--------------
+for i to fileNumPi
+
+#read pitch Obj file
+selectObject: piListID 
+piName$ = Get string: i
+piID = Read from file: pitchFolder$ + "/" + piName$
+
+#get audio type info
+basename$ = piName$ - ".Pitch"
+pairNum$ = left$(basename$, 2)
+	#-> this has to be modified for pair10
+tone$ = right$(basename$, 3)
+if tone$ = "Lu3"
+	check$ =  mid$(basename$, 7, 7)
+	if check$ == "zhentan"
+		tone$ = "Lu3_noSandhi"
+	elif check$ == "jinggua"
+		tone$ = "Lu3_Sandhi"
+	endif
+endif
+
+
+first2portions$ =  left$(basename$, )
+
+
+
+
+endfor
+
+
+
+
+
+## This one only saves Pitch objects
+## sandhi - non sandhi & visualization => next script.
+
+##########TRASH useful for later?##############
+
+if tone$ = "Lu2"
+	Blue
+elif tone$ = "Lu3"
+	Red
+elif tone$ = "Lu4"
+	Silver
+endif
+selectObject: pitchID
+Draw: 0, 0, 0, 500, "yes"
+
+#get Block & Trial info 
+if i = 1
+	mainBtInfo$ = right$(basename$, 14) 
+else
+	currBtInfo$ = right$(basename$, 14) 
+endif
+
+#save and delete the drawing if not the same 
+if currBtInfo$ == mainBtInfo$
+	
+
