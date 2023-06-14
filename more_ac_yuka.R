@@ -194,13 +194,25 @@ for (k in 1:filenum){
       dataToFit <- mergedDf
       dataToFit$Accuracy<-ifelse(dataToFit$Accuracy=="Correct", 1,0)
       library("lme4")
-      glmer1<- glmer(Accuracy ~ condition + (1|pair), data = dataToFit,family=binomial)
+      glmer1<- glmer(Accuracy ~ condition + (1|pair), data = dataToFit, family=binomial)
       summary(glmer1)
       # T2 - T3ns ... marginal
       # T2 - T3S ... ** (0.00228)
       # T2 - T4 ... ** (0.00282)
       
+      #Contrast coding
+      library("car")
+      dataToFit$condition <- as.factor(dataToFit$condition)
+      #seeing the currect state (tone 2 as a base)
+      contrasts(dataToFit$condition)
+      #sum contrast
+      contrasts(dataToFit$condition) <- contr.Sum(levels(dataToFit$condition))
+      #note: if wanted to change the baseline.
+      # levels(dataToFit$condition) <- factor(c("Tone 3 Sandhi","Tone 3 ", "Tone 2", "Tone 4"))
       
+      
+      glmer1<- glmer(Accuracy ~ condition + (1|pair), data = dataToFit, family=binomial)
+      summary(glmer1)
       
 ### Basic stats   -------- 
       #possible things to look at:
