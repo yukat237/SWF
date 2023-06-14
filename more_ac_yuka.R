@@ -196,9 +196,10 @@ for (k in 1:filenum){
       library("lme4")
       glmer1<- glmer(Accuracy ~ condition + (1|pair), data = dataToFit,family=binomial)
       summary(glmer1)
-      # T2 - T3nS ... marginal
+      # T2 - T3ns ... marginal
       # T2 - T3S ... ** (0.00228)
-      # T2 - T4 ... **(0.00282)
+      # T2 - T4 ... ** (0.00282)
+      
       
       
 ### Basic stats   -------- 
