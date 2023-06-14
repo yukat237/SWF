@@ -178,7 +178,29 @@ for (k in 1:filenum){
       table(mergedDfT4$Accuracy, mergedDfT4$pair)
         # 1 error from Pair 10
       
-            
+      ###Inferential stats------
+      accuracyStats<-chisq.test(mergedDf$Accuracy, mergedDf$condition)
+      contingTable <- table(mergedDf$Accuracy, mergedDf$condition)
+      library("rstatix")
+      pairwise_prop_test(contingTable)
+        #gives me a warning message "Chi-squared approximation may be incorrect"
+      #also this does not consider individual/pair level variations
+        #but, in general, sig diff pairs are:
+            # T2-T3s(good), T3ns-T3s(good), T3s-T4(good), T2-T4 (if compared to the most accurate cond, T2 is still considered to be lower.)
+        #non sig are:
+            # T2-T3ns(T3noSandhi was as fine as T2!), T3ns-T4(good)
+      
+      #glmer (for binary data... if i am understanding this right)
+      dataToFit <- mergedDf
+      dataToFit$Accuracy<-ifelse(dataToFit$Accuracy=="Correct", 1,0)
+      library("lme4")
+      glmer1<- glmer(Accuracy ~ condition + (1|pair), data = dataToFit,family=binomial)
+      summary(glmer1)
+      # T2 - T3nS ... marginal
+      # T2 - T3S ... ** (0.00228)
+      # T2 - T4 ... **(0.00282)
+      
+      
 ### Basic stats   -------- 
       #possible things to look at:
         # duration  ---------------
