@@ -99,59 +99,80 @@ for (k in 1:filenum){
       # save the output
       write.table(basicinfoFULL, pathOut, sep = ",", row.names = F)
 
-# WORKING POINT
-    #path of this df for my laptop: "C:\Users\yuka\Desktop\SWF\basicAC.csv"
-    #to read it when working on LAPTOP: 
-      basicinfoFULL <- read.delim("/Users/yuka/Desktop/SWF/basicAC.csv", sep = ",")
-    #to read when working on DESKTOP:
-      basicinfoFULL <- read.delim("/Users/yzt5262/OneDrive - The Pennsylvania State University/Desktop/Eric's study (SWF)/yuk_ac_analysis/basicAC.csv", sep = ",")
       
-    # combine accuracy data  
+      
+      
+##### WORKING POINT #####
+      
+      
+      
+    #Acoustic data from Prosody Pro
+      # LAPTOP: 
+        basicinfoFULL <- read.delim("/Users/yuka/Desktop/SWF/basicAC.csv", sep = ",")
+      # DESKTOP:
+        basicinfoFULL <- read.delim("/Users/yzt5262/OneDrive - The Pennsylvania State University/Desktop/Eric's study (SWF)/yuk_ac_analysis/basicAC.csv", sep = ",")
+        
+    #Get accuracy data  
       #LAPTOP
       acDf <- read.delim("/Users/yuka/Desktop/SWF/processed_matching_data.csv", sep = ",") 
       #DESKTOP
       acDf <- read.csv("/Users/yzt5262/OneDrive - The Pennsylvania State University/Desktop/Eric's study (SWF)/yuk_ac_analysis/processed_matching_data.csv") 
 
-      #need to match by: pair, block, trial (tone differs as a result).
+    # need to match by: pair, block, trial (tone differs as a result).
       #change P_01 to P1
       acDf$pair <- gsub( "P_0(\\d+)", "P\\1", acDf$pair)
       acDf$pair <- gsub( "P_10", "P10", acDf$pair)
       #change Block 4 to B4
       acDf$block <- gsub("Block\\s+(\\d+)", "B\\1", acDf$block)
+      
       #merge df
       basicinfoFULL$trial <- basicinfoFULL$itemID
       library(dplyr)
       mergedDf <- left_join(basicinfoFULL, acDf, by = c("pair" = "pair", "block"="block", "trial"="trial"))
-      #nrow(basicinfofull) = 933, nrow(acDf) = 959, nrow(mergedDf) = 933 (prob bc pair 2 is missing Lu 2 data) 
-      #stored in "Accuracy" column
+      RmergedDf <- right_join(basicinfoFULL, acDf, by = c("pair" = "pair", "block"="block", "trial"="trial"))
+      FmergedDf <- full_join(basicinfoFULL, acDf, by = c("pair" = "pair", "block"="block", "trial"="trial"))
+      #nrow(basicinfofull) = 933, nrow(acDf) = 959, nrow(mergedDf) = 933, nrow(FmergedDf) = 962,  nrow(RmergedDf) = 962
+      # desgin wise, there should be 960 bc each of 3 tones is tested 32 times, and there are 10 pairs.
 
   #Deleting some data that I realized later that are doubled
-      nrow(mergedDf)
-      mergedDf <- mergedDf %>% distinct()
-      nrow(mergedDf) #checking
+      nrow(FmergedDf)
+      FmergedDf <- FmergedDf %>% distinct()
+      nrow(FmergedDf) #checking
+      #after this, 959...?? still missing 1.
       
+  #Making "Condition" Column
+      # add column with this information in the mergedDf
+      FmergedDf<-FmergedDf %>%
+        mutate(condition = case_when(
+          grepl("lu2", filename)  ~ "Tone 2",
+          grepl("lu3jiangjun", filename)  ~ "Tone 3 noSandhi",
+          grepl("lu3zhentan", filename)  ~ "Tone 3 noSandhi",
+          grepl("lu3zhuren", filename)  ~ "Tone 3 Sandhi",
+          grepl("lu3jingguan", filename)  ~ "Tone 3 Sandhi",
+          grepl("lu4", filename)  ~ "Tone 4"
+        ))
 
 ### Behavioral (Accuracy) -------  
       
       ##overall descriptive stats---
       
       #stats - T2
-      mergedDfT2<- mergedDf[mergedDf$condition == "Tone 2",]
+      mergedDfT2<- FmergedDf[FmergedDf$condition == "Tone 2",]
       table(mergedDfT2$Accuracy)
         #across pairs, T2 correct = 273, T2 incorrect = 18
       
       #stats - T3 noSandhi
-      mergedDfT3ns<- mergedDf[mergedDf$condition == "Tone 3 noSandhi",]
+      mergedDfT3ns<- FmergedDf[FmergedDf$condition == "Tone 3 noSandhi",]
       table(mergedDfT3ns$Accuracy)
         #across pairs, T3nS correct = 156, T2 incorrect = 4
       
       #stats - T3 Sandhi
-      mergedDfT3s<- mergedDf[mergedDf$condition == "Tone 3 Sandhi",]
+      mergedDfT3s<- FmergedDf[FmergedDf$condition == "Tone 3 Sandhi",]
       table(mergedDfT3s$Accuracy)
       #across pairs, T3nS correct = 135, T2 incorrect = 24
       
       #stats - T4
-      mergedDfT4<- mergedDf[mergedDf$condition == "Tone 4",]
+      mergedDfT4<- FmergedDf[FmergedDf$condition == "Tone 4",]
       table(mergedDfT4$Accuracy)
       #across pairs, T3nS correct = 319, T2 incorrect = 1
       
@@ -321,16 +342,7 @@ ggplot(mDfB4, aes(fill=tone, y=duration, x=pair)) +
   scale_fill_brewer(palette="Paired")
 
 #comparing duration of [lU2, lU4, lU3sandhi, lu3noSandhi]
- # add column with this information in the mergedDf
-mergedDf<-mergedDf %>%
-  mutate(condition = case_when(
-    grepl("lu2", filename)  ~ "Tone 2",
-    grepl("lu3jiangjun", filename)  ~ "Tone 3 noSandhi",
-    grepl("lu3zhentan", filename)  ~ "Tone 3 noSandhi",
-    grepl("lu3zhuren", filename)  ~ "Tone 3 Sandhi",
-    grepl("lu3jingguan", filename)  ~ "Tone 3 Sandhi",
-    grepl("lu4", filename)  ~ "Tone 4"
-  ))
+
 
  # visualize by pair
 　#Bar (less informative)
