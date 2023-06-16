@@ -102,7 +102,7 @@ for (k in 1:filenum){
       
       
       
-##### WORKING POINT #####
+##### WORKING POINT #####================================================================
       
       
       
@@ -124,7 +124,29 @@ for (k in 1:filenum){
       acDf$pair <- gsub( "P_10", "P10", acDf$pair)
       #change Block 4 to B4
       acDf$block <- gsub("Block\\s+(\\d+)", "B\\1", acDf$block)
-      
+      #the original file is missing one data (Excel only has 959.)
+        #let's investigate which one:
+            nrow(acDf[acDf$pair=="P1",])
+            nrow(acDf[acDf$pair=="P2",]) 
+            nrow(acDf[acDf$pair=="P3",]) #this is missing 1 data.
+            nrow(acDf[acDf$pair=="P4",])
+            nrow(acDf[acDf$pair=="P5",])
+            nrow(acDf[acDf$pair=="P6",])
+            nrow(acDf[acDf$pair=="P7",])
+            nrow(acDf[acDf$pair=="P8",])
+            nrow(acDf[acDf$pair=="P9",])
+            nrow(acDf[acDf$pair=="P10",])
+        # which P3 data missing?
+            nrow(acDf[acDf$pair=="P3"&acDf$block=="B1",])#24
+            nrow(acDf[acDf$pair=="P3"&acDf$block=="B2",])#24
+            nrow(acDf[acDf$pair=="P3"&acDf$block=="B3",])#24
+            nrow(acDf[acDf$pair=="P3"&acDf$block=="B4",])#this is missing 1 data
+        # missing data is: P3, B4, 24th item
+        # Is this missing from basicInfoDf too?
+            basicinfoFULL[basicinfoFULL$pair=="P3"&basicinfoFULL$block=="B4"&basicinfoFULL$trial=="T24",]
+            #yup, definitely missing this in basic info full as well.
+            #=> checked the original. the final trial was not shown to the participant so they moved on to the next task without doing it.
+        
       #merge df
       basicinfoFULL$trial <- basicinfoFULL$itemID
       library(dplyr)
@@ -138,7 +160,7 @@ for (k in 1:filenum){
       nrow(FmergedDf)
       FmergedDf <- FmergedDf %>% distinct()
       nrow(FmergedDf) #checking
-      #after this, 959...?? still missing 1.
+      #after this, 959...  bc we are missing P3B4T24.
       
   #Making "Condition" Column
       # add column with this information in the mergedDf
@@ -157,8 +179,9 @@ for (k in 1:filenum){
       ##overall descriptive stats---
       
       #stats - T2
-      mergedDfT2<- FmergedDf[FmergedDf$condition == "Tone 2",]
-      table(mergedDfT2$Accuracy)
+      FmergedDfT2<- FmergedDf[FmergedDf$condition == "Tone 2",]
+      #this has 320 rows ( nrow(FmergedDfT2) was 320), but the tail of it is all NAs.
+      table(FmergedDfT2$Accuracy)
         #across pairs, T2 correct = 273, T2 incorrect = 18
       
       #stats - T3 noSandhi
