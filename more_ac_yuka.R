@@ -19,7 +19,8 @@
 # 3) Accuracy data
 #      - visualize
 #      - glmer
-# 4) Acoustic data
+# 4) Acoustic 
+#      - Normalization
 #      - General trend visualization (ignore pairs)
 #         - duration
 #         - f0 mean
@@ -235,22 +236,22 @@ for (k in 1:filenum){
       #merge dfs (FYI: acDf is accurate.)
       basicinfoFULL$trial <- basicinfoFULL$itemID
       library(dplyr)
-      mergedDf <- left_join(basicinfoFULL, acDf, by = c("pair" = "pair", "block"="block", "trial"="trial"))
-      RmergedDf <- right_join(basicinfoFULL, acDf, by = c("pair" = "pair", "block"="block", "trial"="trial"))
-      FmergedDf <- full_join(basicinfoFULL, acDf, by = c("pair" = "pair", "block"="block", "trial"="trial"))
-      #nrow(basicinfofull) = 933, nrow(acDf) = 959, nrow(mergedDf) = 933, nrow(FmergedDf) = 962,  nrow(RmergedDf) = 962
+      #  mergedDf <- left_join(basicinfoFULL, acDf, by = c("pair" = "pair", "block"="block", "trial"="trial"))
+      mergedDf <- right_join(basicinfoFULL, acDf, by = c("pair" = "pair", "block"="block", "trial"="trial"))
+      #  FmergedDf <- full_join(basicinfoFULL, acDf, by = c("pair" = "pair", "block"="block", "trial"="trial"))
+      #nrow(basicinfofull) = 933, nrow(acDf) = 959, nrow(mergedDf) = 933, nrow(FmergedDf) = 962,  nrow(mergedDf) = 962
       # desgin wise, there should be 960 bc each of 3 tones is tested 32 times, and there are 10 pairs.
       #I checked if accuracy info is preserved even basicinfoFull does not have the data.
-        #looking at: tail(RmergedDf), prob they are remained as planned.
-        #BUT, nrow(RmergedDf[RmergedDf$Accuracy==NA,]) is somehow ALL data...
-        #BUT, RmergedDf[RmergedDf$Accuracy=="Correct",] is 911. nrow(RmergedDf[RmergedDf$Accuracy=="Incorrect",]) is 48, which is the all data.
-      RmergedDf <- right_join(basicinfoFULL, acDf, by = c("pair", "block", "trial"))
-      table(RmergedDf$Accuracy)
+        #looking at: tail(mergedDf), prob they are remained as planned.
+        #BUT, nrow(mergedDf[mergedDf$Accuracy==NA,]) is somehow ALL data...
+        #BUT, mergedDf[mergedDf$Accuracy=="Correct",] is 911. nrow(mergedDf[mergedDf$Accuracy=="Incorrect",]) is 48, which is the all data.
+      mergedDf <- right_join(basicinfoFULL, acDf, by = c("pair", "block", "trial"))
+      table(mergedDf$Accuracy)
       
   # Deleting some data that I realized later that are doubled
-      nrow(RmergedDf)
-      RmergedDf <- RmergedDf %>% distinct()
-      nrow(RmergedDf) #checking
+      nrow(mergedDf)
+      mergedDf <- mergedDf %>% distinct()
+      nrow(mergedDf) #checking
       #after this, 959.  bc we are missing P3B4T24.
   
   # make sure to have all important column values as factors     
@@ -262,7 +263,7 @@ for (k in 1:filenum){
       #-----no need to run these anymore (START)-------------------------------------------#
               #Making "Condition" Column
                   # add column with this information in the mergedDf
-                  RmergedDf<-RmergedDf %>%
+                  mergedDf<-mergedDf %>%
                     mutate(condition = case_when(
                       grepl("lu2", filename)  ~ "Tone 2",
                       grepl("lu3jiangjun", filename)  ~ "Tone 3 noSandhi",
@@ -276,25 +277,25 @@ for (k in 1:filenum){
       
   #checking inside
       library(tidyr)
-      RmergedDf$condition<-RmergedDf$condition %>% replace_na("Unknown")
-      #there are 29 NAs in RmergedDf (26 are from the difference betw acDf and basicinfoFULL. but the other 3...?)
-      table(RmergedDf$Accuracy,RmergedDf$condition)
+      mergedDf$condition<-mergedDf$condition %>% replace_na("Unknown")
+      #there are 29 NAs in mergedDf (26 are from the difference betw acDf and basicinfoFULL. but the other 3...?)
+      table(mergedDf$Accuracy,mergedDf$condition)
       #so all the accuracy data are there, but can't tell the target without basicinfoFull info...
 
   #see which are the Unkown ones.    
-      View(RmergedDf[RmergedDf$condition=="Unknown",])
+      View(mergedDf[mergedDf$condition=="Unknown",])
   
 
 ### Behavioral (Accuracy) -------  
       
       ##overall descriptive stats---
       #this shows everything at the same time
-      table(RmergedDf$Accuracy,RmergedDf$condition,RmergedDf$pair)
+      table(mergedDf$Accuracy,mergedDf$condition,mergedDf$pair)
       
       #----not stylish (START)-----------
       
               #stats - T2
-              mergedDfT2<- RmergedDf[RmergedDf$condition == "Tone 2",]
+              mergedDfT2<- mergedDf[mergedDf$condition == "Tone 2",]
               table(mergedDfT2$pair, mergedDfT2$block)
               table(mergedDfT2$Accuracy)
                
@@ -343,28 +344,38 @@ for (k in 1:filenum){
               
       ## Contrast coding
       library(car)
+      # recoding "Correct" and "Incorrect" as "1" and "0"
+        dataToFit <- mergedDf
+        dataToFit$Accuracy<-ifelse(dataToFit$Accuracy=="Correct", 1,0)
+              
       dataToFit$condition <- as.factor(dataToFit$condition)
       #seeing the currect state (tone 2 as a base)
       contrasts(dataToFit$condition)
       #sum contrast
       contrasts(dataToFit$condition) <- contr.Sum(levels(dataToFit$condition))
       #note: if wanted to change the baseline:
-        # levels(dataToFit$condition) <- factor(c("Tone 3 Sandhi","Tone 3 ", "Tone 2", "Tone 4"))
+      #   levels(dataToFit$condition) <- factor(c( "Tone 2","Tone 3 Sandhi","Tone 3 noSandhi", "Tone 4"))
       
       ## glmer (for binary data)
-      # recoding "Correct" and "Incorrect" as "1" and "0"
-      dataToFit <- mergedDf
-      dataToFit$Accuracy<-ifelse(dataToFit$Accuracy=="Correct", 1,0)
       # Glmer
       library(lme4)
       glmer1<- glmer(Accuracy ~ condition + (1|pair), data = dataToFit, family=binomial)
       summary(glmer1)
-      # T2 - T3ns ... marginal
-      # T2 - T3S ... ** (0.00228)
-      # T2 - T4 ... ** (0.00282)
       
       
-##### Acoustics   ---------------- 
+# Acoustics   -----------------------------------------------------------
+  
+  ## normalization -----------      
+      #get z score for each data, for columns: duration, f0mean, f0range
+      
+      
+      
+      mergedDf$zDuration<-
+      mergedDf$zF0mean<-
+      mergedDf$zF0range<-
+      
+      
+      
   ## GENERAL TREND, not by pairs-----------
       
       #very general tone diff (across pairs, blocks, and individuals)
