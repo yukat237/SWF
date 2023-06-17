@@ -99,20 +99,28 @@ for (k in 1:filenum){
       # save the output
       write.table(basicinfoFULL, pathOut, sep = ",", row.names = F)
 
-      
-      
+# Check what's in this basicinfoFULL
+      table(basicinfoFULL$pair)
+        #FULL DATA (has all 96 acoustic data)
+          #Pair5,6,7
+          #pair3 ...only has 95, but this is how many collected so full data.
+        #missing one (95 data)
+          #Pair10, 4, 8, 9
+        #missing more
+          #Pair 2
+        #weird. 
+          #Pair1 ...has 99. (prob duplicated)
       
 ##### WORKING POINT #####================================================================
       
       
-      
-    #Acoustic data from Prosody Pro
+    #Acoustic data from Prosody Pro (Run only 1 from below)
       # LAPTOP: 
         basicinfoFULL <- read.delim("/Users/yuka/Desktop/SWF/basicAC.csv", sep = ",")
       # DESKTOP:
         basicinfoFULL <- read.delim("/Users/yzt5262/OneDrive - The Pennsylvania State University/Desktop/Eric's study (SWF)/yuk_ac_analysis/basicAC.csv", sep = ",")
         
-    #Get accuracy data  
+    #Get accuracy data (Run only 1 from below)
       #LAPTOP
       acDf <- read.delim("/Users/yuka/Desktop/SWF/processed_matching_data.csv", sep = ",") 
       #DESKTOP
@@ -125,29 +133,71 @@ for (k in 1:filenum){
       #change Block 4 to B4
       acDf$block <- gsub("Block\\s+(\\d+)", "B\\1", acDf$block)
       #the original file is missing one data (Excel only has 959.)
-        #let's investigate which one:
-            nrow(acDf[acDf$pair=="P1",])
-            nrow(acDf[acDf$pair=="P2",]) 
-            nrow(acDf[acDf$pair=="P3",]) #this is missing 1 data.
-            nrow(acDf[acDf$pair=="P4",])
-            nrow(acDf[acDf$pair=="P5",])
-            nrow(acDf[acDf$pair=="P6",])
-            nrow(acDf[acDf$pair=="P7",])
-            nrow(acDf[acDf$pair=="P8",])
-            nrow(acDf[acDf$pair=="P9",])
-            nrow(acDf[acDf$pair=="P10",])
-        # which P3 data missing?
-            nrow(acDf[acDf$pair=="P3"&acDf$block=="B1",])#24
-            nrow(acDf[acDf$pair=="P3"&acDf$block=="B2",])#24
-            nrow(acDf[acDf$pair=="P3"&acDf$block=="B3",])#24
-            nrow(acDf[acDf$pair=="P3"&acDf$block=="B4",])#this is missing 1 data
-        # missing data is: P3, B4, 24th item
-        # Is this missing from basicInfoDf too?
-            basicinfoFULL[basicinfoFULL$pair=="P3"&basicinfoFULL$block=="B4"&basicinfoFULL$trial=="T24",]
-            #yup, definitely missing this in basic info full as well.
-            #=> checked the original. the final trial was not shown to the participant so they moved on to the next task without doing it.
+      
+      #make condition column here.
+      rowNumAcdf<-nrow(acDf)
+      acDf$condition<-""
+      for (i in 1:rowNumAcdf){
+        tg <- acDf[i,6]
+        if (tg == "LisRSpkR"|tg == "LisLSpkR"){
+          pngName<-acDf[i,5]
+          toneTemp<-substr(pngName, start = 1, stop = 3)
+          if (toneTemp == "lu2"|toneTemp == "lu4"){
+            cond = toneTemp
+          }
+          else if (pngName == "lu3zhuren.png"|pngName == "lu3jingguan.png"){
+            cond = "Tone 3 Sandhi"
+          }
+          else {
+            cond = "Tone 3 noSandhi"
+          }
+        }
         
-      #merge df
+        if (tg == "LisRSpkL"|tg == "LisLSpkL"){
+          pngName<-acDf[i,4]
+          toneTemp<-substr(pngName, start = 1, stop = 3)
+          if (toneTemp == "lu2"|toneTemp == "lu4"){
+            cond = toneTemp
+          }
+          else if (pngName == "lu3zhuren.png"|pngName == "lu3jingguan.png"){
+            cond = "Tone 3 Sandhi"
+          }
+          else {
+            cond = "Tone 3 noSandhi"
+          }
+        }
+        
+        acDf[i,"condition"]<- cond
+        }
+        
+      
+            
+      #-----no need to run these usually (START)-------------------------------------------#
+                #let's investigate which one:
+                    nrow(acDf[acDf$pair=="P1",])
+                    nrow(acDf[acDf$pair=="P2",]) 
+                    nrow(acDf[acDf$pair=="P3",]) #this is missing 1 data.
+                    nrow(acDf[acDf$pair=="P4",])
+                    nrow(acDf[acDf$pair=="P5",])
+                    nrow(acDf[acDf$pair=="P6",])
+                    nrow(acDf[acDf$pair=="P7",])
+                    nrow(acDf[acDf$pair=="P8",])
+                    nrow(acDf[acDf$pair=="P9",])
+                    nrow(acDf[acDf$pair=="P10",])
+                # which P3 data missing?
+                    nrow(acDf[acDf$pair=="P3"&acDf$block=="B1",])#24
+                    nrow(acDf[acDf$pair=="P3"&acDf$block=="B2",])#24
+                    nrow(acDf[acDf$pair=="P3"&acDf$block=="B3",])#24
+                    nrow(acDf[acDf$pair=="P3"&acDf$block=="B4",])#this is missing 1 data
+                # missing data is: P3, B4, 24th item
+                # Is this missing from basicInfoDf too?
+                    basicinfoFULL[basicinfoFULL$pair=="P3"&basicinfoFULL$block=="B4"&basicinfoFULL$trial=="T24",]
+                    #yup, definitely missing this in basic info full as well.
+                    #=> checked the original. the final trial was not shown to the participant so they moved on to the next task without doing it.
+                    #this missing one was supposed to be Lu2 data. (bc P3B4 has 7 Lu2, 8Lu3, 8Lu4)
+      #-----no need to run these usually (END)-------------------------------------------#
+     
+      #merge dfs (FYI: acDf is accurate.)
       basicinfoFULL$trial <- basicinfoFULL$itemID
       library(dplyr)
       mergedDf <- left_join(basicinfoFULL, acDf, by = c("pair" = "pair", "block"="block", "trial"="trial"))
@@ -155,16 +205,22 @@ for (k in 1:filenum){
       FmergedDf <- full_join(basicinfoFULL, acDf, by = c("pair" = "pair", "block"="block", "trial"="trial"))
       #nrow(basicinfofull) = 933, nrow(acDf) = 959, nrow(mergedDf) = 933, nrow(FmergedDf) = 962,  nrow(RmergedDf) = 962
       # desgin wise, there should be 960 bc each of 3 tones is tested 32 times, and there are 10 pairs.
-
+      #I checked if accuracy info is preserved even basicinfoFull does not have the data.
+        #looking at: tail(RmergedDf), prob they are remained as planned.
+        #BUT, nrow(RmergedDf[RmergedDf$Accuracy==NA,]) is somehow ALL data...
+        #BUT, RmergedDf[RmergedDf$Accuracy=="Correct",] is 911. nrow(RmergedDf[RmergedDf$Accuracy=="Incorrect",]) is 48, which is the all data.
+      RmergedDf <- right_join(basicinfoFULL, acDf, by = c("pair", "block", "trial"))
+ table(RmergedDf$Accuracy)
+      
   #Deleting some data that I realized later that are doubled
-      nrow(FmergedDf)
-      FmergedDf <- FmergedDf %>% distinct()
-      nrow(FmergedDf) #checking
-      #after this, 959...  bc we are missing P3B4T24.
+      nrow(RmergedDf)
+      RmergedDf <- RmergedDf %>% distinct()
+      nrow(RmergedDf) #checking
+      #after this, 959.  bc we are missing P3B4T24.
       
   #Making "Condition" Column
       # add column with this information in the mergedDf
-      FmergedDf<-FmergedDf %>%
+      RmergedDf<-RmergedDf %>%
         mutate(condition = case_when(
           grepl("lu2", filename)  ~ "Tone 2",
           grepl("lu3jiangjun", filename)  ~ "Tone 3 noSandhi",
@@ -173,16 +229,32 @@ for (k in 1:filenum){
           grepl("lu3jingguan", filename)  ~ "Tone 3 Sandhi",
           grepl("lu4", filename)  ~ "Tone 4"
         ))
+      
+      
+  #checking inside
+      library(tidyr)
+      RmergedDf$condition<-RmergedDf$condition %>% replace_na("Unknown")
+      #there are 29 NAs in RmergedDf (26 are from the difference betw acDf and basicinfoFULL. but the other 3...?)
+      table(RmergedDf$Accuracy,RmergedDf$condition)
+      #so all the accuracy data are there, but can't tell the target without basicinfoFull info...
+
+  #see which are the Unkown ones.    
+      View(RmergedDf[RmergedDf$condition=="Unknown",])
+  
 
 ### Behavioral (Accuracy) -------  
       
       ##overall descriptive stats---
       
       #stats - T2
-      FmergedDfT2<- FmergedDf[FmergedDf$condition == "Tone 2",]
+      mergedDfT2<- RmergedDf[RmergedDf$condition == "Tone 2",]
+      mergedDfT2<- RmergedDf[which(RmergedDf$condition =="Tone 2"),]
       #this has 320 rows ( nrow(FmergedDfT2) was 320), but the tail of it is all NAs.
-      table(FmergedDfT2$Accuracy)
+      table(mergedDfT2$pair, mergedDfT2$block)
+        #missing some. that is, merging could not leave accuracy data if not in basicinfofull.
+      table(mergedDfT2$Accuracy)
         #across pairs, T2 correct = 273, T2 incorrect = 18
+        #T2 for each block is 8, so each pair does 32 T2 stim. 10 pairs = 320 data points.
       
       #stats - T3 noSandhi
       mergedDfT3ns<- FmergedDf[FmergedDf$condition == "Tone 3 noSandhi",]
