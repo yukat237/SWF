@@ -170,6 +170,10 @@ for (k in 1:filenum){
         acDf[i,"condition"]<- cond
         }
         
+      #replace lu2 with Tone 2 , and lu4 with Tone 4
+      library(stringr)
+      acDf$condition <- str_replace_all(acDf$condition, 'lu2', 'Tone 2')
+      acDf$condition <- str_replace_all(acDf$condition, 'lu4', 'Tone 4')
       
             
       #-----no need to run these usually (START)-------------------------------------------#
@@ -218,18 +222,20 @@ for (k in 1:filenum){
       nrow(RmergedDf) #checking
       #after this, 959.  bc we are missing P3B4T24.
       
-  #Making "Condition" Column
-      # add column with this information in the mergedDf
-      RmergedDf<-RmergedDf %>%
-        mutate(condition = case_when(
-          grepl("lu2", filename)  ~ "Tone 2",
-          grepl("lu3jiangjun", filename)  ~ "Tone 3 noSandhi",
-          grepl("lu3zhentan", filename)  ~ "Tone 3 noSandhi",
-          grepl("lu3zhuren", filename)  ~ "Tone 3 Sandhi",
-          grepl("lu3jingguan", filename)  ~ "Tone 3 Sandhi",
-          grepl("lu4", filename)  ~ "Tone 4"
-        ))
-      
+      #-----no need to run these anymore (START)-------------------------------------------#
+              #Making "Condition" Column
+                  # add column with this information in the mergedDf
+                  RmergedDf<-RmergedDf %>%
+                    mutate(condition = case_when(
+                      grepl("lu2", filename)  ~ "Tone 2",
+                      grepl("lu3jiangjun", filename)  ~ "Tone 3 noSandhi",
+                      grepl("lu3zhentan", filename)  ~ "Tone 3 noSandhi",
+                      grepl("lu3zhuren", filename)  ~ "Tone 3 Sandhi",
+                      grepl("lu3jingguan", filename)  ~ "Tone 3 Sandhi",
+                      grepl("lu4", filename)  ~ "Tone 4"
+                    ))
+                  
+      #-----no need to run these anymore (START)-------------------------------------------#
       
   #checking inside
       library(tidyr)
@@ -245,71 +251,63 @@ for (k in 1:filenum){
 ### Behavioral (Accuracy) -------  
       
       ##overall descriptive stats---
+      #this shows everything at the same time
+      table(RmergedDf$Accuracy,RmergedDf$condition,RmergedDf$pair)
       
-      #stats - T2
-      mergedDfT2<- RmergedDf[RmergedDf$condition == "Tone 2",]
-      mergedDfT2<- RmergedDf[which(RmergedDf$condition =="Tone 2"),]
-      #this has 320 rows ( nrow(FmergedDfT2) was 320), but the tail of it is all NAs.
-      table(mergedDfT2$pair, mergedDfT2$block)
-        #missing some. that is, merging could not leave accuracy data if not in basicinfofull.
-      table(mergedDfT2$Accuracy)
-        #across pairs, T2 correct = 273, T2 incorrect = 18
-        #T2 for each block is 8, so each pair does 32 T2 stim. 10 pairs = 320 data points.
+      #----not stylish (START)-----------
       
-      #stats - T3 noSandhi
-      mergedDfT3ns<- FmergedDf[FmergedDf$condition == "Tone 3 noSandhi",]
-      table(mergedDfT3ns$Accuracy)
-        #across pairs, T3nS correct = 156, T2 incorrect = 4
+              #stats - T2
+              mergedDfT2<- RmergedDf[RmergedDf$condition == "Tone 2",]
+              table(mergedDfT2$pair, mergedDfT2$block)
+              table(mergedDfT2$Accuracy)
+               
+              #stats - T3 noSandhi
+              mergedDfT3ns<- FmergedDf[FmergedDf$condition == "Tone 3 noSandhi",]
+              table(mergedDfT3ns$Accuracy)
+                #across pairs, T3nS correct = 156, T2 incorrect = 4
+              
+              #stats - T3 Sandhi
+              mergedDfT3s<- FmergedDf[FmergedDf$condition == "Tone 3 Sandhi",]
+              table(mergedDfT3s$Accuracy)
+              #across pairs, T3nS correct = 135, T2 incorrect = 24
+              
+              #stats - T4
+              mergedDfT4<- FmergedDf[FmergedDf$condition == "Tone 4",]
+              table(mergedDfT4$Accuracy)
+              #across pairs, T3nS correct = 319, T2 incorrect = 1
       
-      #stats - T3 Sandhi
-      mergedDfT3s<- FmergedDf[FmergedDf$condition == "Tone 3 Sandhi",]
-      table(mergedDfT3s$Accuracy)
-      #across pairs, T3nS correct = 135, T2 incorrect = 24
+              ##kind of want to consider by pair...
+              
+              #T2
+              table(mergedDfT2$Accuracy, mergedDfT2$pair)
+              # from 1, 10, 2 -- 9,
+                # 2, 2, 1, 4, 2, 1, 0, 1, 1, 4
+              
+              #T3nS
+              table(mergedDfT3ns$Accuracy, mergedDfT3ns$pair)
+                # P1 - 1 Incorrect
+                # P4 - 2 Incorrect
+                # P9 - 1 Incorrect
+                # all other pairs - 0 Incorrect
+              
+              #T3S
+              table(mergedDfT3s$Accuracy, mergedDfT3s$pair)
+                # from 1, 10, 2 -- 9,
+                    # 3,2,2,5,1,2,1,2,1,5
+              
+              #T4
+              table(mergedDfT4$Accuracy, mergedDfT4$pair)
+                # 1 error from Pair 10
+              
+      #----not stylish (END)-----------
       
-      #stats - T4
-      mergedDfT4<- FmergedDf[FmergedDf$condition == "Tone 4",]
-      table(mergedDfT4$Accuracy)
-      #across pairs, T3nS correct = 319, T2 incorrect = 1
       
-      ##kind of want to consider by pair...
-      
-      #T2
-      table(mergedDfT2$Accuracy, mergedDfT2$pair)
-      # from 1, 10, 2 -- 9,
-        # 2, 2, 1, 4, 2, 1, 0, 1, 1, 4
-      
-      #T3nS
-      table(mergedDfT3ns$Accuracy, mergedDfT3ns$pair)
-        # P1 - 1 Incorrect
-        # P4 - 2 Incorrect
-        # P9 - 1 Incorrect
-        # all other pairs - 0 Incorrect
-      
-      #T3S
-      table(mergedDfT3s$Accuracy, mergedDfT3s$pair)
-        # from 1, 10, 2 -- 9,
-            # 3,2,2,5,1,2,1,2,1,5
-      
-      #T4
-      table(mergedDfT4$Accuracy, mergedDfT4$pair)
-        # 1 error from Pair 10
-      
-      ###Inferential stats------
-      accuracyStats<-chisq.test(mergedDf$Accuracy, mergedDf$condition)
-      contingTable <- table(mergedDf$Accuracy, mergedDf$condition)
-      library("rstatix")
-      pairwise_prop_test(contingTable)
-        #gives me a warning message "Chi-squared approximation may be incorrect"
-      #also this does not consider individual/pair level variations
-        #but, in general, sig diff pairs are:
-            # T2-T3s(good), T3ns-T3s(good), T3s-T4(good), T2-T4 (if compared to the most accurate cond, T2 is still considered to be lower.)
-        #non sig are:
-            # T2-T3ns(T3noSandhi was as fine as T2!), T3ns-T4(good)
-      
-      #glmer (for binary data... if i am understanding this right)
+      ### Inferential stats for accuracy ------
+              
+      #glmer (for binary data)
       dataToFit <- mergedDf
       dataToFit$Accuracy<-ifelse(dataToFit$Accuracy=="Correct", 1,0)
-      library("lme4")
+      library(lme4)
       glmer1<- glmer(Accuracy ~ condition + (1|pair), data = dataToFit, family=binomial)
       summary(glmer1)
       # T2 - T3ns ... marginal
@@ -317,7 +315,7 @@ for (k in 1:filenum){
       # T2 - T4 ... ** (0.00282)
       
       #Contrast coding
-      library("car")
+      library(car)
       dataToFit$condition <- as.factor(dataToFit$condition)
       #seeing the currect state (tone 2 as a base)
       contrasts(dataToFit$condition)
@@ -1106,6 +1104,23 @@ ggplot(mDfB4, aes(fill=tone, y=duration, x=pair)) +
 #==========================================================
 #==========================trash===========================
 #==========================================================
+     
+ 
+     
+#attempt for accuracy stats       
+     accuracyStats<-chisq.test(mergedDf$Accuracy, mergedDf$condition)
+     contingTable <- table(mergedDf$Accuracy, mergedDf$condition)
+     library("rstatix")
+     pairwise_prop_test(contingTable)
+     #gives me a warning message "Chi-squared approximation may be incorrect"
+     #also this does not consider individual/pair level variations
+     #but, in general, sig diff pairs are:
+     # T2-T3s(good), T3ns-T3s(good), T3s-T4(good), T2-T4 (if compared to the most accurate cond, T2 is still considered to be lower.)
+     #non sig are:
+     # T2-T3ns(T3noSandhi was as fine as T2!), T3ns-T4(good)
+     
+     
+     
 # Other anova1 
      library(rstatix)
      res.aov <- anova_test(
