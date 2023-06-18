@@ -245,8 +245,9 @@ for (k in 1:filenum){
         #looking at: tail(mergedDf), prob they are remained as planned.
         #BUT, nrow(mergedDf[mergedDf$Accuracy==NA,]) is somehow ALL data...
         #BUT, mergedDf[mergedDf$Accuracy=="Correct",] is 911. nrow(mergedDf[mergedDf$Accuracy=="Incorrect",]) is 48, which is the all data.
-      mergedDf <- right_join(basicinfoFULL, acDf, by = c("pair", "block", "trial"))
-      table(mergedDf$Accuracy)
+      #Just a note that actually this works too:
+        # mergedDf <- right_join(basicinfoFULL, acDf, by = c("pair", "block", "trial"))
+
       
   # Deleting some data that I realized later that are doubled
       nrow(mergedDf)
@@ -273,17 +274,18 @@ for (k in 1:filenum){
                       grepl("lu4", filename)  ~ "Tone 4"
                     ))
                   
+                  # "NA" is hard to treat with, so replacing them as "Unknown" 
+                  library(tidyr)
+                  mergedDf$condition<-mergedDf$condition %>% replace_na("Unknown") 
+                  #there are 29 NAs in mergedDf (26 are from the difference betw acDf and basicinfoFULL. but the other 3...?)
+                  
+                  #see which are the Unkown ones.    
+                  View(mergedDf[mergedDf$condition=="Unknown",])
+                  
       #-----no need to run these anymore (START)-------------------------------------------#
       
   #checking inside
-      library(tidyr)
-      mergedDf$condition<-mergedDf$condition %>% replace_na("Unknown")
-      #there are 29 NAs in mergedDf (26 are from the difference betw acDf and basicinfoFULL. but the other 3...?)
       table(mergedDf$Accuracy,mergedDf$condition)
-      #so all the accuracy data are there, but can't tell the target without basicinfoFull info...
-
-  #see which are the Unkown ones.    
-      View(mergedDf[mergedDf$condition=="Unknown",])
   
 
 ### Behavioral (Accuracy) -------  
@@ -292,7 +294,7 @@ for (k in 1:filenum){
       #this shows everything at the same time
       table(mergedDf$Accuracy,mergedDf$condition,mergedDf$pair)
       
-      #----not stylish (START)-----------
+      #----no need to run (START)-----------
       
               #stats - T2
               mergedDfT2<- mergedDf[mergedDf$condition == "Tone 2",]
@@ -337,13 +339,14 @@ for (k in 1:filenum){
               table(mergedDfT4$Accuracy, mergedDfT4$pair)
                 # 1 error from Pair 10
               
-      #----not stylish (END)-----------
+      #----not need to run (END)-----------
       
       
       ### Inferential for accuracy ------
               
       ## Contrast coding
       library(car)
+      library(carData)
       # recoding "Correct" and "Incorrect" as "1" and "0"
         dataToFit <- mergedDf
         dataToFit$Accuracy<-ifelse(dataToFit$Accuracy=="Correct", 1,0)
@@ -368,13 +371,17 @@ for (k in 1:filenum){
   ## normalization -----------      
       #get z score for each data, for columns: duration, f0mean, f0range
       
-      
-      
-      mergedDf$zDuration<-
-      mergedDf$zF0mean<-
-      mergedDf$zF0range<-
-      
-      
+      #first, some data do not have acoustic data, so make a new df only with those data that has acoustic info.
+      #i don't like "NA" so replace them with words
+      library(tidyr)
+      mergedDf$duration<-mergedDf$duration %>% replace_na(9999) 
+      # delete 29 items that do not have acoustic data to avoid errors in later mutation
+      mergedDf<- subset(mergedDf, duration!=9999) 
+      # norming
+      normDf<-normDf %>% mutate(zDuration = duration - (mean(duration)/sd(duration)))
+      normDf<-normDf %>% mutate(zF0mean = duration - (mean(f0mean)/sd(f0mean)))
+      normDf<-normDf %>% mutate(zF0range = duration - (mean(f0range)/sd(f0range)))
+                      
       
   ## GENERAL TREND, not by pairs-----------
       
@@ -384,7 +391,7 @@ for (k in 1:filenum){
       
       #DURATION---------------
         #violin
-        ggplot(mergedDf, aes(y=duration, x=condition)) +
+        ggplot(normDf, aes(y=duration, x=condition)) +
           geom_violin(aes(fill = condition)) +theme_bw()+ 
         stat_summary(fun = "mean",
                      geom = "point",
@@ -394,19 +401,19 @@ for (k in 1:filenum){
                      aes(color = "Median")) +
         scale_colour_manual(values = c("red", "blue"), name = "")
         #boxplot
-        ggplot(mergedDf, aes(y=duration, x=condition)) +
+        ggplot(normDf, aes(y=duration, x=condition)) +
           geom_boxplot(aes(fill = condition)) +theme_bw()
         # +scale_fill_brewer(palette="BuPu")
       
         #(not good stats but just to see the trend...)
-        anovaGenDur<-aov(duration ~ condition, data = mergedDf)
+        anovaGenDur<-aov(duration ~ condition, data = normDf)
         summary(anovaGenDur)
         TukeyHSD(anovaGenDur)
         #the only difference observed is T3nS and T2 
       
       #f0 MEAN----------------
         #violin
-        ggplot(mergedDf, aes(y=f0mean, x=condition)) +
+        ggplot(normDf, aes(y=f0mean, x=condition)) +
           geom_violin(aes(fill = condition)) +theme_bw()+ 
           stat_summary(fun = "mean",
                        geom = "point",
@@ -416,13 +423,13 @@ for (k in 1:filenum){
                        aes(color = "Median")) +
           scale_colour_manual(values = c("red", "blue"), name = "")
         #boxplot
-        ggplot(mergedDf, aes(y=f0mean, x=condition)) +
+        ggplot(normDf, aes(y=f0mean, x=condition)) +
           geom_boxplot(aes(fill = condition)) +theme_bw()
         # +scale_fill_brewer(palette="BuPu")
         
         
         #(not good stats but just to see the trend...)
-        anovaGenF0M<-aov(f0mean ~ condition, data = mergedDf)
+        anovaGenF0M<-aov(f0mean ~ condition, data = normDf)
         summary(anovaGenF0M)
         TukeyHSD(anovaGenF0M)
         #SIG: T3nS - T2, T3S - T2, T4 - T2, T4 - T3nS, T4 - T3S
@@ -432,7 +439,7 @@ for (k in 1:filenum){
       #f0 RANGE---------------- 
         #(each data point = range of Hz for the tone.)
         #violin
-        ggplot(mergedDf, aes(y=f0range, x=condition)) +
+        ggplot(normDf, aes(y=f0range, x=condition)) +
           geom_violin(aes(fill = condition)) +theme_bw()+ 
           stat_summary(fun = "mean",
                        geom = "point",
@@ -442,14 +449,14 @@ for (k in 1:filenum){
                        aes(color = "Median")) +
           scale_colour_manual(values = c("red", "blue"), name = "")
         #boxplot
-        ggplot(mergedDf, aes(y=f0range, x=condition)) +
+        ggplot(normDf, aes(y=f0range, x=condition)) +
           geom_boxplot(aes(fill = condition)) +theme_bw()
         # +scale_fill_brewer(palette="BuPu")
             #T4 has higher mean of f0range than the other 3 groups. = T4 has the widest range of f0
         
         
         #(not good stats but just to see the trend...)
-        anovaGenF0R<-aov(f0range ~ condition, data = mergedDf)
+        anovaGenF0R<-aov(f0range ~ condition, data = normDf)
         summary(anovaGenF0R)
         TukeyHSD(anovaGenF0R)   
           #No difference among T2, T3, T3sandhi (diff only found with T4)
@@ -461,14 +468,14 @@ for (k in 1:filenum){
   # == Duration by pair, by 4 tone conds ======
  
        #violin (good!)
-       ggplot(mergedDf, aes(fill=condition, y=duration, x=pair)) +
+       ggplot(normDf, aes(fill=condition, y=duration, x=pair)) +
          geom_violin(trim=FALSE) +
          geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.9)) +
          scale_fill_brewer(palette="Set2")+
          theme_minimal()
        
        #box (my favorite)
-       ggplot(mergedDf, aes(fill=condition, y=duration, x=pair)) +
+       ggplot(normDf, aes(fill=condition, y=duration, x=pair)) +
          geom_boxplot() + 
          geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
          scale_fill_brewer(palette="Set2")+
@@ -479,8 +486,8 @@ for (k in 1:filenum){
        # (following anovas are not good stats, but just to see the trend)
  
     # Big visualization by pair & person
-       mergedDf$Participant <- as.factor(mergedDf$Participant)
-       ggplot(mergedDf, aes(y = duration, x = Participant, fill = condition)) +
+       normDf$Participant <- as.factor(normDf$Participant)
+       ggplot(normDf, aes(y = duration, x = Participant, fill = condition)) +
          geom_boxplot() +
          facet_grid(. ~ pair) +
          geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
@@ -489,7 +496,7 @@ for (k in 1:filenum){
        
     
      #pair1
-      P1data<- mergedDf[mergedDf$pair == "P1",]
+      P1data<- normDf[normDf$pair == "P1",]
       P1data$condition <- as.factor(P1data$condition)
       P1data$duration<-  as.numeric(P1data$duration)
       
@@ -507,7 +514,7 @@ for (k in 1:filenum){
       
       
       #pair2
-      P2data<- mergedDf[mergedDf$pair == "P2",]
+      P2data<- normDf[normDf$pair == "P2",]
       P2data$condition <- as.factor(P2data$condition)
       P2data$duration<-  as.numeric(P2data$duration)
       
@@ -523,7 +530,7 @@ for (k in 1:filenum){
       TukeyHSD(aovdur2)
       
       #pair3
-      P3data<- mergedDf[mergedDf$pair == "P3",]
+      P3data<- normDf[normDf$pair == "P3",]
       P3data$condition <- as.factor(P3data$condition)
       P3data$duration<-  as.numeric(P3data$duration)
       
@@ -538,7 +545,7 @@ for (k in 1:filenum){
       TukeyHSD(aovdur3)
       
       #pair4
-      P4data<- mergedDf[mergedDf$pair == "P4",]
+      P4data<- normDf[normDf$pair == "P4",]
       P4data$condition <- as.factor(P4data$condition)
       P4data$duration<-  as.numeric(P4data$duration)
       
@@ -554,7 +561,7 @@ for (k in 1:filenum){
       TukeyHSD(aovdur4)
       
       #pair5
-      P5data<- mergedDf[mergedDf$pair == "P5",]
+      P5data<- normDf[normDf$pair == "P5",]
       P5data$condition <- as.factor(P5data$condition)
       P5data$duration<-  as.numeric(P5data$duration)
       
@@ -571,7 +578,7 @@ for (k in 1:filenum){
       
       
       #pair6
-      P6data<- mergedDf[mergedDf$pair == "P6",]
+      P6data<- normDf[normDf$pair == "P6",]
       P6data$condition <- as.factor(P6data$condition)
       P6data$duration<-  as.numeric(P6data$duration)
       
@@ -590,7 +597,7 @@ for (k in 1:filenum){
       TukeyHSD(aovdur6)
      
       #pair7
-      P7data<- mergedDf[mergedDf$pair == "P7",]
+      P7data<- normDf[normDf$pair == "P7",]
       P7data$condition <- as.factor(P7data$condition)
       P7data$duration<-  as.numeric(P7data$duration)
       
@@ -606,7 +613,7 @@ for (k in 1:filenum){
       TukeyHSD(aovdur7)
       
       #pair8
-      P8data<- mergedDf[mergedDf$pair == "P8",]
+      P8data<- normDf[normDf$pair == "P8",]
       P8data$condition <- as.factor(P8data$condition)
       P8data$duration<-  as.numeric(P8data$duration)
       
@@ -625,7 +632,7 @@ for (k in 1:filenum){
       
       
       #pair9
-      P9data<- mergedDf[mergedDf$pair == "P9",]
+      P9data<- normDf[normDf$pair == "P9",]
       P9data$condition <- as.factor(P9data$condition)
       P9data$duration<-  as.numeric(P9data$duration)
       
@@ -641,7 +648,7 @@ for (k in 1:filenum){
       TukeyHSD(aovdur9)
       
       #pair10
-      P10data<- mergedDf[mergedDf$pair == "P10",]
+      P10data<- normDf[normDf$pair == "P10",]
       P10data$condition <- as.factor(P10data$condition)
       P10data$duration<-  as.numeric(P10data$duration)
       
@@ -662,26 +669,26 @@ for (k in 1:filenum){
   # == F0 MEAN by pair, by 4 tones ====
   
      #violin (good!)
-      ggplot(mergedDf, aes(fill=condition, y=f0mean, x=pair)) +
+      ggplot(normDf, aes(fill=condition, y=f0mean, x=pair)) +
         geom_violin(trim=FALSE) +
         geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.9)) +
         scale_fill_brewer(palette="Set1")+
         theme_minimal()
       
       #box (my favorite)
-      ggplot(mergedDf, aes(fill=condition, y=f0mean, x=pair)) +
+      ggplot(normDf, aes(fill=condition, y=f0mean, x=pair)) +
         geom_boxplot() + 
         geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
         scale_fill_brewer(palette="Set1")+
         theme_minimal()
       
-      mergedDf$Participant <- as.factor(mergedDf$Participant)
+      normDf$Participant <- as.factor(normDf$Participant)
       
       
   # == F0 MEAN by Pair & Speaker, by 4 tones ====   
       #Visualization by pair & person (f0mean)
-      mergedDf$Participant <- as.factor(mergedDf$Participant)
-      ggplot(mergedDf, aes(y = f0mean, x = Participant, fill = condition)) +
+      normDf$Participant <- as.factor(normDf$Participant)
+      ggplot(normDf, aes(y = f0mean, x = Participant, fill = condition)) +
         geom_boxplot() +
         facet_grid(. ~ pair) +
         geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
@@ -746,7 +753,7 @@ for (k in 1:filenum){
   # == F0 RANGE by pair, by 4 tones ====
   
     #violin (updated for speaker-wise)
-    ggplot(mergedDf, aes(fill=condition, y=f0range, x= Participant)) +
+    ggplot(normDf, aes(fill=condition, y=f0range, x= Participant)) +
       geom_violin(trim=FALSE) +
       facet_grid(. ~ pair) +
       geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.9)) +
@@ -754,7 +761,7 @@ for (k in 1:filenum){
       theme_bw()
     
     #box 
-    ggplot(mergedDf, aes(fill=condition, y=f0range, x=pair)) +
+    ggplot(normDf, aes(fill=condition, y=f0range, x=pair)) +
       geom_boxplot() + 
       geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
       scale_fill_brewer(palette="Set1")+
@@ -762,8 +769,8 @@ for (k in 1:filenum){
   
   # == F0 RANGE by Pair & Speaker, by 4 tones ====
   
-     mergedDf$Participant <- as.factor(mergedDf$Participant)
-      ggplot(mergedDf, aes(y = f0range, x = Participant, fill = condition)) +
+     normDf$Participant <- as.factor(normDf$Participant)
+      ggplot(normDf, aes(y = f0range, x = Participant, fill = condition)) +
         geom_boxplot() +
         facet_grid(. ~ pair) +
         geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
@@ -1062,24 +1069,24 @@ for (k in 1:filenum){
 
 ##these visualizations are merging both Tone3, and not really helpful, so took this out from main.
      #Duration, each tone, by block, across ppl   
-     ggplot(mergedDf, aes(fill=tone, y=duration, x=block)) +
+     ggplot(normDf, aes(fill=tone, y=duration, x=block)) +
        geom_boxplot() +
        scale_fill_brewer(palette="Paired")
      
      #Duration, each tone, by Pair, across blocks and ppl
-     ggplot(mergedDf, aes(fill=tone, y=duration, x=pair)) +
+     ggplot(normDf, aes(fill=tone, y=duration, x=pair)) +
        geom_boxplot() +
        scale_fill_brewer(palette="Paired")
      
      #above but only seeing B4.
-     mDfB4<-mergedDf[mergedDf$block=="B4",]
+     mDfB4<-normDf[normDf$block=="B4",]
      ggplot(mDfB4, aes(fill=tone, y=duration, x=pair)) +
        geom_boxplot() +
        scale_fill_brewer(palette="Paired")
      
 #attempt for accuracy stats       
-     accuracyStats<-chisq.test(mergedDf$Accuracy, mergedDf$condition)
-     contingTable <- table(mergedDf$Accuracy, mergedDf$condition)
+     accuracyStats<-chisq.test(normDf$Accuracy, normDf$condition)
+     contingTable <- table(normDf$Accuracy, normDf$condition)
      library("rstatix")
      pairwise_prop_test(contingTable)
      #gives me a warning message "Chi-squared approximation may be incorrect"
