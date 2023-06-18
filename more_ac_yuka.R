@@ -379,8 +379,8 @@ for (k in 1:filenum){
       mergedDf<- subset(mergedDf, duration!=9999) 
       # norming
       normDf<-normDf %>% mutate(zDuration = duration - (mean(duration)/sd(duration)))
-      normDf<-normDf %>% mutate(zF0mean = duration - (mean(f0mean)/sd(f0mean)))
-      normDf<-normDf %>% mutate(zF0range = duration - (mean(f0range)/sd(f0range)))
+      normDf<-normDf %>% mutate(zF0mean = f0mean - (mean(f0mean)/sd(f0mean)))
+      normDf<-normDf %>% mutate(zF0range = f0range - (mean(f0range)/sd(f0range)))
                       
       
   ## GENERAL TREND, not by pairs-----------
@@ -391,7 +391,7 @@ for (k in 1:filenum){
       
       #DURATION---------------
         #violin
-        ggplot(normDf, aes(y=duration, x=condition)) +
+        ggplot(normDf, aes(y=zDuration, x=condition)) +
           geom_violin(aes(fill = condition)) +theme_bw()+ 
         stat_summary(fun = "mean",
                      geom = "point",
@@ -401,19 +401,19 @@ for (k in 1:filenum){
                      aes(color = "Median")) +
         scale_colour_manual(values = c("red", "blue"), name = "")
         #boxplot
-        ggplot(normDf, aes(y=duration, x=condition)) +
+        ggplot(normDf, aes(y=zDuration, x=condition)) +
           geom_boxplot(aes(fill = condition)) +theme_bw()
         # +scale_fill_brewer(palette="BuPu")
       
         #(not good stats but just to see the trend...)
-        anovaGenDur<-aov(duration ~ condition, data = normDf)
+        anovaGenDur<-aov(zDuration ~ condition, data = normDf)
         summary(anovaGenDur)
         TukeyHSD(anovaGenDur)
         #the only difference observed is T3nS and T2 
       
       #f0 MEAN----------------
         #violin
-        ggplot(normDf, aes(y=f0mean, x=condition)) +
+        ggplot(normDf, aes(y=zF0mean, x=condition)) +
           geom_violin(aes(fill = condition)) +theme_bw()+ 
           stat_summary(fun = "mean",
                        geom = "point",
@@ -423,13 +423,13 @@ for (k in 1:filenum){
                        aes(color = "Median")) +
           scale_colour_manual(values = c("red", "blue"), name = "")
         #boxplot
-        ggplot(normDf, aes(y=f0mean, x=condition)) +
+        ggplot(normDf, aes(y=zF0mean, x=condition)) +
           geom_boxplot(aes(fill = condition)) +theme_bw()
         # +scale_fill_brewer(palette="BuPu")
         
         
         #(not good stats but just to see the trend...)
-        anovaGenF0M<-aov(f0mean ~ condition, data = normDf)
+        anovaGenF0M<-aov(zF0mean ~ condition, data = normDf)
         summary(anovaGenF0M)
         TukeyHSD(anovaGenF0M)
         #SIG: T3nS - T2, T3S - T2, T4 - T2, T4 - T3nS, T4 - T3S
@@ -439,7 +439,7 @@ for (k in 1:filenum){
       #f0 RANGE---------------- 
         #(each data point = range of Hz for the tone.)
         #violin
-        ggplot(normDf, aes(y=f0range, x=condition)) +
+        ggplot(normDf, aes(y=zF0range, x=condition)) +
           geom_violin(aes(fill = condition)) +theme_bw()+ 
           stat_summary(fun = "mean",
                        geom = "point",
@@ -449,14 +449,14 @@ for (k in 1:filenum){
                        aes(color = "Median")) +
           scale_colour_manual(values = c("red", "blue"), name = "")
         #boxplot
-        ggplot(normDf, aes(y=f0range, x=condition)) +
+        ggplot(normDf, aes(y=zF0range, x=condition)) +
           geom_boxplot(aes(fill = condition)) +theme_bw()
         # +scale_fill_brewer(palette="BuPu")
             #T4 has higher mean of f0range than the other 3 groups. = T4 has the widest range of f0
         
         
         #(not good stats but just to see the trend...)
-        anovaGenF0R<-aov(f0range ~ condition, data = normDf)
+        anovaGenF0R<-aov(zF0range ~ condition, data = normDf)
         summary(anovaGenF0R)
         TukeyHSD(anovaGenF0R)   
           #No difference among T2, T3, T3sandhi (diff only found with T4)
@@ -468,14 +468,14 @@ for (k in 1:filenum){
   # == Duration by pair, by 4 tone conds ======
  
        #violin (good!)
-       ggplot(normDf, aes(fill=condition, y=duration, x=pair)) +
+       ggplot(normDf, aes(fill=condition, y=zDuration, x=pair)) +
          geom_violin(trim=FALSE) +
          geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.9)) +
          scale_fill_brewer(palette="Set2")+
          theme_minimal()
        
        #box (my favorite)
-       ggplot(normDf, aes(fill=condition, y=duration, x=pair)) +
+       ggplot(normDf, aes(fill=condition, y=zDuration, x=pair)) +
          geom_boxplot() + 
          geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
          scale_fill_brewer(palette="Set2")+
@@ -487,20 +487,20 @@ for (k in 1:filenum){
  
     # Big visualization by pair & person
        normDf$Participant <- as.factor(normDf$Participant)
-       ggplot(normDf, aes(y = duration, x = Participant, fill = condition)) +
+       ggplot(normDf, aes(y = zDuration, x = Participant, fill = condition)) +
          geom_boxplot() +
          facet_grid(. ~ pair) +
          geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
-         scale_fill_brewer(palette="Set2")+
+         scale_fill_brewer(palette="YlGnBu")+
          theme_bw()  
        
     
      #pair1
       P1data<- normDf[normDf$pair == "P1",]
       P1data$condition <- as.factor(P1data$condition)
-      P1data$duration<-  as.numeric(P1data$duration)
+      P1data$zDuration<-  as.numeric(P1data$zDuration)
       
-      anova1<-aov(duration ~ condition, data = P1data)
+      anova1<-aov(zDuration ~ condition, data = P1data)
       summary(anova1)
       TukeyHSD(anova1)
         # RESULTS
@@ -508,7 +508,7 @@ for (k in 1:filenum){
           # Tone 3 Sandhi-Tone 2: ***
           # T4 - T3nosandhi: ***
           # T4 - T3sandhi: ***
-      aovdur1<-aov(duration ~ condition*Participant, data = P1data)
+      aovdur1<-aov(zDuration ~ condition*Participant, data = P1data)
       summary(aovdur1)
       TukeyHSD(aovdur1)
       
@@ -516,63 +516,63 @@ for (k in 1:filenum){
       #pair2
       P2data<- normDf[normDf$pair == "P2",]
       P2data$condition <- as.factor(P2data$condition)
-      P2data$duration<-  as.numeric(P2data$duration)
+      P2data$zDuration<-  as.numeric(P2data$zDuration)
       
-      anova2<-aov(duration ~ condition, data = P2data)
+      anova2<-aov(zDuration ~ condition, data = P2data)
       summary(anova2)
       TukeyHSD(anova2)
       # RESULTS
       # T3 Sandhi-Tone 2: *
       # T3 Sandhi-T3 noSandhi: ***
       # T4 - T3sandhi: ***
-      aovdur2<-aov(duration ~ condition*Participant, data = P2data)
+      aovdur2<-aov(zDuration ~ condition*Participant, data = P2data)
       summary(aovdur2)
       TukeyHSD(aovdur2)
       
       #pair3
       P3data<- normDf[normDf$pair == "P3",]
       P3data$condition <- as.factor(P3data$condition)
-      P3data$duration<-  as.numeric(P3data$duration)
+      P3data$zDuration<-  as.numeric(P3data$zDuration)
       
-      anova3<-aov(duration ~ condition, data = P3data)
+      anova3<-aov(zDuration ~ condition, data = P3data)
       summary(anova3)
       TukeyHSD(anova3)
       # RESULTS
       # T4 - T3 noSandhi: *
       # T4 - T3sandhi: *
-      aovdur3<-aov(duration ~ condition*Participant, data = P3data)
+      aovdur3<-aov(zDuration ~ condition*Participant, data = P3data)
       summary(aovdur3)
       TukeyHSD(aovdur3)
       
       #pair4
       P4data<- normDf[normDf$pair == "P4",]
       P4data$condition <- as.factor(P4data$condition)
-      P4data$duration<-  as.numeric(P4data$duration)
+      P4data$zDuration<-  as.numeric(P4data$zDuration)
       
-      anova4<-aov(duration ~ condition, data = P4data)
+      anova4<-aov(zDuration ~ condition, data = P4data)
       summary(anova4)
       TukeyHSD(anova4)
       # RESULTS (* < 0.05, ** < 0.01, *** < 0.001)
       # T3 Sandhi-T2: ***
       # T3 Sandhi - T3 noSandhi: **
       # T4 - T3sandhi: ***
-      aovdur4<-aov(duration ~ condition*Participant, data = P4data)
+      aovdur4<-aov(zDuration ~ condition*Participant, data = P4data)
       summary(aovdur4)
       TukeyHSD(aovdur4)
       
       #pair5
       P5data<- normDf[normDf$pair == "P5",]
       P5data$condition <- as.factor(P5data$condition)
-      P5data$duration<-  as.numeric(P5data$duration)
+      P5data$zDuration<-  as.numeric(P5data$zDuration)
       
-      anova5<-aov(duration ~ condition, data = P5data)
+      anova5<-aov(zDuration ~ condition, data = P5data)
       summary(anova5)
       TukeyHSD(anova5)
       # RESULTS (* < 0.05, ** < 0.01, *** < 0.001)
       # T3 noSandhi-T2: *
       # T4 - T3 noSandhi: ***
       # T4 - T3sandhi: **
-      aovdur5<-aov(duration ~ condition*Participant, data = P5data)
+      aovdur5<-aov(zDuration ~ condition*Participant, data = P5data)
       summary(aovdur5)
       TukeyHSD(aovdur5)
       
@@ -580,9 +580,9 @@ for (k in 1:filenum){
       #pair6
       P6data<- normDf[normDf$pair == "P6",]
       P6data$condition <- as.factor(P6data$condition)
-      P6data$duration<-  as.numeric(P6data$duration)
+      P6data$zDuration<-  as.numeric(P6data$zDuration)
       
-      anova6<-aov(duration ~ condition, data = P6data)
+      anova6<-aov(zDuration ~ condition, data = P6data)
       summary(anova6)
       TukeyHSD(anova6)
       # RESULTS (* < 0.05, ** < 0.01, *** < 0.001)
@@ -592,32 +592,32 @@ for (k in 1:filenum){
       # T4 - T3 noSandhi: *
       # T4 - T3 sandhi: ***
       
-      aovdur6<-aov(duration ~ condition*Participant, data = P6data)
+      aovdur6<-aov(zDuration ~ condition*Participant, data = P6data)
       summary(aovdur6)
       TukeyHSD(aovdur6)
      
       #pair7
       P7data<- normDf[normDf$pair == "P7",]
       P7data$condition <- as.factor(P7data$condition)
-      P7data$duration<-  as.numeric(P7data$duration)
+      P7data$zDuration<-  as.numeric(P7data$zDuration)
       
-      anova7<-aov(duration ~ condition, data = P7data)
+      anova7<-aov(zDuration ~ condition, data = P7data)
       summary(anova7)
       TukeyHSD(anova7)
       # RESULTS (* < 0.05, ** < 0.01, *** < 0.001)
       # T3 Sandhi- T2: **
       # T4 - T3 sandhi: *
       
-      aovdur7<-aov(duration ~ condition*Participant, data = P7data)
+      aovdur7<-aov(zDuration ~ condition*Participant, data = P7data)
       summary(aovdur7)
       TukeyHSD(aovdur7)
       
       #pair8
       P8data<- normDf[normDf$pair == "P8",]
       P8data$condition <- as.factor(P8data$condition)
-      P8data$duration<-  as.numeric(P8data$duration)
+      P8data$zDuration<-  as.numeric(P8data$zDuration)
       
-      anova8<-aov(duration ~ condition, data = P8data)
+      anova8<-aov(zDuration ~ condition, data = P8data)
       summary(anova8)
       TukeyHSD(anova8)
       # RESULTS (* < 0.05, ** < 0.01, *** < 0.001)
@@ -626,7 +626,7 @@ for (k in 1:filenum){
       # Tone 4-Tone 3 noSandhi: ** (0.0010892)
       # Tone 4-Tone 3 Sandhi: ***
    
-      aovdur8<-aov(duration ~ condition*Participant, data = P8data)
+      aovdur8<-aov(zDuration ~ condition*Participant, data = P8data)
       summary(aovdur8)
       TukeyHSD(aovdur8)
       
@@ -634,25 +634,25 @@ for (k in 1:filenum){
       #pair9
       P9data<- normDf[normDf$pair == "P9",]
       P9data$condition <- as.factor(P9data$condition)
-      P9data$duration<-  as.numeric(P9data$duration)
+      P9data$zDuration<-  as.numeric(P9data$zDuration)
       
-      anova9<-aov(duration ~ condition, data = P9data)
+      anova9<-aov(zDuration ~ condition, data = P9data)
       summary(anova9)
       TukeyHSD(anova9)
       # RESULTS (* < 0.05, ** < 0.01, *** < 0.001)
       # Tone 4-Tone 3 noSandhi: *
       # Tone 4-Tone 3 Sandhi: **
       
-      aovdur9<-aov(duration ~ condition*Participant, data = P9data)
+      aovdur9<-aov(zDuration ~ condition*Participant, data = P9data)
       summary(aovdur9)
       TukeyHSD(aovdur9)
       
       #pair10
       P10data<- normDf[normDf$pair == "P10",]
       P10data$condition <- as.factor(P10data$condition)
-      P10data$duration<-  as.numeric(P10data$duration)
+      P10data$zDuration<-  as.numeric(P10data$zDuration)
       
-      anova10<-aov(duration ~ condition, data = P10data)
+      anova10<-aov(zDuration ~ condition, data = P10data)
       summary(anova10)
       TukeyHSD(anova10)
       # RESULTS (* < 0.05, ** < 0.01, *** < 0.001)
@@ -660,7 +660,7 @@ for (k in 1:filenum){
       # Tone 3 Sandhi-Tone 3 noSandhi: ** (0.0033333)
       # Tone 4-Tone 3 Sandhi: ***
       
-      aovdur10<-aov(duration ~ condition*Participant, data = P10data)
+      aovdur10<-aov(zDuration ~ condition*Participant, data = P10data)
       summary(aovdur10)
       TukeyHSD(aovdur10)
       
@@ -669,14 +669,14 @@ for (k in 1:filenum){
   # == F0 MEAN by pair, by 4 tones ====
   
      #violin (good!)
-      ggplot(normDf, aes(fill=condition, y=f0mean, x=pair)) +
+      ggplot(normDf, aes(fill=condition, y=zF0mean, x=pair)) +
         geom_violin(trim=FALSE) +
         geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.9)) +
         scale_fill_brewer(palette="Set1")+
         theme_minimal()
       
       #box (my favorite)
-      ggplot(normDf, aes(fill=condition, y=f0mean, x=pair)) +
+      ggplot(normDf, aes(fill=condition, y=zF0mean, x=pair)) +
         geom_boxplot() + 
         geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
         scale_fill_brewer(palette="Set1")+
@@ -688,63 +688,63 @@ for (k in 1:filenum){
   # == F0 MEAN by Pair & Speaker, by 4 tones ====   
       #Visualization by pair & person (f0mean)
       normDf$Participant <- as.factor(normDf$Participant)
-      ggplot(normDf, aes(y = f0mean, x = Participant, fill = condition)) +
+      ggplot(normDf, aes(y = zF0mean, x = Participant, fill = condition)) +
         geom_boxplot() +
         facet_grid(. ~ pair) +
         geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
-        scale_fill_brewer(palette="Set1")+
+        scale_fill_brewer(palette="RdPu")+
         theme_bw()
   
       # stats
     
       #pair1
-       aovf0mean1<-aov(f0mean ~ condition*Participant, data = P1data)
+       aovf0mean1<-aov(zF0mean ~ condition*Participant, data = P1data)
       summary(aovf0mean1)
       TukeyHSD(aovf0mean1)
       
       #pair2
-      aovf0mean2<-aov(f0mean ~ condition*Participant, data = P2data)
+      aovf0mean2<-aov(zF0mean ~ condition*Participant, data = P2data)
       summary(aovf0mean2)
       TukeyHSD(aovf0mean2)
       
       
       #pair3 (this is completely dif betw individuals--)
-      aovf0mean3<-aov(f0mean ~ condition*Participant, data = P3data)
+      aovf0mean3<-aov(zF0mean ~ condition*Participant, data = P3data)
       summary(aovf0mean3)
       TukeyHSD(aovf0mean3)
     
       #pair4
-      aovf0mean4<-aov(f0mean ~ condition*Participant, data = P4data)
+      aovf0mean4<-aov(zF0mean ~ condition*Participant, data = P4data)
       summary(aovf0mean4)
       TukeyHSD(aovf0mean4)
       
       #pair5
-      aovf0mean5<-aov(f0mean ~ condition*Participant, data = P5data)
+      aovf0mean5<-aov(zF0mean ~ condition*Participant, data = P5data)
       summary(aovf0mean5)
       TukeyHSD(aovf0mean5)
       
       #pair6
-      aovf0mean6<-aov(f0mean ~ condition*Participant, data = P6data)
+      aovf0mean6<-aov(zF0mean ~ condition*Participant, data = P6data)
       summary(aovf0mean6)
       TukeyHSD(aovf0mean6)
       
       #pair7
-      aovf0mean7<-aov(f0mean ~ condition*Participant, data = P7data)
+      aovf0mean7<-aov(zF0mean ~ condition*Participant, data = P7data)
       summary(aovf0mean7)
       TukeyHSD(aovf0mean7)
       
       #pair8
-      aovf0mean8<-aov(f0mean ~ condition*Participant, data = P8data)
+      aovf0mean8<-aov(zF0mean ~ condition*Participant, data = P8data)
       summary(aovf0mean8)
       TukeyHSD(aovf0mean8)
       
       #pair9
-      aovf0mean9<-aov(f0mean ~ condition*Participant, data = P9data)
+      aovf0mean9<-aov(zF0mean ~ condition*Participant, data = P9data)
       summary(aovf0mean9)
       TukeyHSD(aovf0mean9)
       
       #pair10
-      aovf0mean10<-aov(f0mean ~ condition*Participant, data = P10data)
+      aovf0mean10<-aov(zF0mean ~ condition*Participant, data = P10data)
       summary(aovf0mean10)
       TukeyHSD(aovf0mean10)
     
@@ -753,7 +753,7 @@ for (k in 1:filenum){
   # == F0 RANGE by pair, by 4 tones ====
   
     #violin (updated for speaker-wise)
-    ggplot(normDf, aes(fill=condition, y=f0range, x= Participant)) +
+    ggplot(normDf, aes(fill=condition, y=zF0range, x= Participant)) +
       geom_violin(trim=FALSE) +
       facet_grid(. ~ pair) +
       geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.9)) +
@@ -761,7 +761,7 @@ for (k in 1:filenum){
       theme_bw()
     
     #box 
-    ggplot(normDf, aes(fill=condition, y=f0range, x=pair)) +
+    ggplot(normDf, aes(fill=condition, y=zF0range, x=pair)) +
       geom_boxplot() + 
       geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
       scale_fill_brewer(palette="Set1")+
@@ -770,61 +770,61 @@ for (k in 1:filenum){
   # == F0 RANGE by Pair & Speaker, by 4 tones ====
   
      normDf$Participant <- as.factor(normDf$Participant)
-      ggplot(normDf, aes(y = f0range, x = Participant, fill = condition)) +
+      ggplot(normDf, aes(y = zF0range, x = Participant, fill = condition)) +
         geom_boxplot() +
         facet_grid(. ~ pair) +
         geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
-        scale_fill_brewer(palette="Set1")+
+        scale_fill_brewer(palette="OrRd")+
         theme_bw()
   
       #pair1
-      aovf0range1<-aov(f0range ~ condition*Participant, data = P1data)
+      aovf0range1<-aov(zF0range ~ condition*Participant, data = P1data)
       summary(aovf0range1)
       TukeyHSD(aovf0range1)
       
       #pair2
-      aovf0range2<-aov(f0range ~ condition*Participant, data = P2data)
+      aovf0range2<-aov(zF0range ~ condition*Participant, data = P2data)
       summary(aovf0range2)
       TukeyHSD(aovf0range2)
       
       
       #pair3 (this is completely dif betw individuals--)
-      aovf0range3<-aov(f0range ~ condition*Participant, data = P3data)
+      aovf0range3<-aov(zF0range ~ condition*Participant, data = P3data)
       summary(aovf0range3)
       TukeyHSD(aovf0range3)
       
       #pair4
-      aovf0range4<-aov(f0range ~ condition*Participant, data = P4data)
+      aovf0range4<-aov(zF0range ~ condition*Participant, data = P4data)
       summary(aovf0range4)
       TukeyHSD(aovf0range4)
       
       #pair5
-      aovf0range5<-aov(f0range ~ condition*Participant, data = P5data)
+      aovf0range5<-aov(zF0range ~ condition*Participant, data = P5data)
       summary(aovf0range5)
       TukeyHSD(aovf0range5)
       
       #pair6
-      aovf0range6<-aov(f0range ~ condition*Participant, data = P6data)
+      aovf0range6<-aov(zF0range ~ condition*Participant, data = P6data)
       summary(aovf0range6)
       TukeyHSD(aovf0range6)
       
       #pair7
-      aovf0range7<-aov(f0range ~ condition*Participant, data = P7data)
+      aovf0range7<-aov(zF0range ~ condition*Participant, data = P7data)
       summary(aovf0range7)
       TukeyHSD(aovf0range7)
       
       #pair8
-      aovf0range8<-aov(f0range ~ condition*Participant, data = P8data)
+      aovf0range8<-aov(zF0range ~ condition*Participant, data = P8data)
       summary(aovf0range8)
       TukeyHSD(aovf0range8)
       
       #pair9
-      aovf0range9<-aov(f0range ~ condition*Participant, data = P9data)
+      aovf0range9<-aov(zF0range ~ condition*Participant, data = P9data)
       summary(aovf0range9)
       TukeyHSD(aovf0range9)
       
       #pair10
-      aovf0range10<-aov(f0range ~ condition*Participant, data = P10data)
+      aovf0range10<-aov(zF0range ~ condition*Participant, data = P10data)
       summary(aovf0range10)
       TukeyHSD(aovf0range10)
   
@@ -1069,18 +1069,18 @@ for (k in 1:filenum){
 
 ##these visualizations are merging both Tone3, and not really helpful, so took this out from main.
      #Duration, each tone, by block, across ppl   
-     ggplot(normDf, aes(fill=tone, y=duration, x=block)) +
+     ggplot(normDf, aes(fill=tone, y=zDuration, x=block)) +
        geom_boxplot() +
        scale_fill_brewer(palette="Paired")
      
      #Duration, each tone, by Pair, across blocks and ppl
-     ggplot(normDf, aes(fill=tone, y=duration, x=pair)) +
+     ggplot(normDf, aes(fill=tone, y=zDuration, x=pair)) +
        geom_boxplot() +
        scale_fill_brewer(palette="Paired")
      
      #above but only seeing B4.
      mDfB4<-normDf[normDf$block=="B4",]
-     ggplot(mDfB4, aes(fill=tone, y=duration, x=pair)) +
+     ggplot(mDfB4, aes(fill=tone, y=zDuration, x=pair)) +
        geom_boxplot() +
        scale_fill_brewer(palette="Paired")
      
@@ -1101,7 +1101,7 @@ for (k in 1:filenum){
 # Other anova1 
      library(rstatix)
      res.aov <- anova_test(
-       data = P1data, dv = duration, wid = filename,
+       data = P1data, dv = zDuration, wid = filename,
        within = condition)
      #this gives me an error because 6 rows are sharing the same keys!! (there are 3 pairs of data that is the same name?!?!?)
      get_anova_table(res.aov)
@@ -1109,7 +1109,7 @@ for (k in 1:filenum){
      #another ANOVA for MSE(mean squared error)
      library("ez")
      anova2<-ezANOVA(data = P1data,
-                     dv = .(duration),
+                     dv = .(zDuration),
                      wid = .(filename),
                      within = .(condition),
                      detailed = TRUE)
