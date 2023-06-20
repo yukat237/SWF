@@ -414,6 +414,16 @@ for (k in 1:filenum){
         summary(anovaGenDur)
         TukeyHSD(anovaGenDur)
         #the only difference observed is T3nS and T2 
+        
+        #descriptive stats
+        t2normDf <- subset(normDf, normDf$condition=="Tone 2")
+        t3SnormDf <- subset(normDf, normDf$condition=="Tone 3 Sandhi")
+        t3NSnormDf <- subset(normDf, normDf$condition=="Tone 3 noSandhi")
+        t4normDf <- subset(normDf, normDf$condition=="Tone 4")
+        mean(t2normDf$zDuration)# -0.02992323
+        mean(t3SnormDf$zDuration) # 0.6834059
+        mean(t3NSnormDf$zDuration) # 0.1680373
+        mean(t4normDf$zDuration) # -0.3941453
       
       #f0 MEAN----------------
         #violin
@@ -440,6 +450,12 @@ for (k in 1:filenum){
         #nonSIG: T3nS - T3S
         # differentiation between sandhi conditions within T3
         
+        #descriptive stats
+        mean(t2normDf$zF0mean)# -0.06700392
+        mean(t3SnormDf$zF0mean) #  -0.3551674
+        mean(t3NSnormDf$zF0mean) #  -0.4239773
+        mean(t4normDf$zF0mean) # 0.4484937
+        
       #f0 RANGE---------------- 
         #(each data point = range of Hz for the tone.)
         #violin
@@ -464,6 +480,13 @@ for (k in 1:filenum){
         summary(anovaGenF0R)
         TukeyHSD(anovaGenF0R)   
           #No difference among T2, T3, T3sandhi (diff only found with T4)
+        
+        #descriptive stats
+        mean(t2normDf$zF0range)# -0.3288803
+        mean(t3SnormDf$zF0range) #  -0.4009036
+        mean(t3NSnormDf$zF0range) # 0.01464953
+        mean(t4normDf$zF0range) # 0.4907246
+        
       
 # ZOOMED IN TREND, by speakers/pairs-----------
    
