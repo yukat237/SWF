@@ -84,12 +84,16 @@ f0range <- basicinfo[1,2] - basicinfo[1,3]
 ### Loop through all files of these basic data ----------------------------
 
 #read in all files
+#desktop
 setwd("/Users/yzt5262/OneDrive - The Pennsylvania State University/Desktop/Eric's study (SWF)/yuk_ac_analysis/")
+#laptop
+setwd("/Users/yuka/Desktop/SWF/data")
+
 currDir <- getwd()
 fileList <- c()
 for (n in 1:10){
   folderpath <- paste0(currDir, "/pair", n)
-  tempfileList <- list.files(folderpath, pattern = "means+")
+  tempfileList <- list.files(folderpath, pattern = "means")
   fileList <- append(fileList,tempfileList)
 }
 filenum <- length(fileList)
@@ -114,7 +118,7 @@ for (k in 1:filenum){
         
         # main data
         pairNum <- str_replace_all(pair, "P", "")
-        setwd(paste0(currDir,"/Pair", pairNum))
+        setwd(paste0(currDir,"/pair", pairNum))#note on 6/19 : I changed to /pair from /Pair. to make it work for laptop. if needed to replace again.
         basicDf <- read.delim(fileList[k], header = TRUE)
         dur <- basicDf[1,8]
         f0mean <- basicDf[1,5]
@@ -378,9 +382,9 @@ for (k in 1:filenum){
       # delete 29 items that do not have acoustic data to avoid errors in later mutation
       mergedDf<- subset(mergedDf, duration!=9999) 
       # norming
-      normDf<-normDf %>% mutate(zDuration = duration - (mean(duration)/sd(duration)))
-      normDf<-normDf %>% mutate(zF0mean = f0mean - (mean(f0mean)/sd(f0mean)))
-      normDf<-normDf %>% mutate(zF0range = f0range - (mean(f0range)/sd(f0range)))
+      normDf<-normDf %>% mutate(zDuration = (duration - mean(duration))/sd(duration))
+      normDf<-normDf %>% mutate(zF0mean = (f0mean - mean(f0mean))/sd(f0mean))
+      normDf<-normDf %>% mutate(zF0range = (f0range - mean(f0range))/sd(f0range))
                       
       
   ## GENERAL TREND, not by pairs-----------
