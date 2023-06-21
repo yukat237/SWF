@@ -420,11 +420,23 @@ for (k in 1:filenum){
         t3SnormDf <- subset(normDf, normDf$condition=="Tone 3 Sandhi")
         t3NSnormDf <- subset(normDf, normDf$condition=="Tone 3 noSandhi")
         t4normDf <- subset(normDf, normDf$condition=="Tone 4")
+
         mean(t2normDf$zDuration)# -0.02992323
         mean(t3SnormDf$zDuration) # 0.6834059
         mean(t3NSnormDf$zDuration) # 0.1680373
         mean(t4normDf$zDuration) # -0.3941453
-      
+        
+        t2B1normDf<- subset(t2normDf, t2normDf$block=="B1")
+        t2B2normDf<- subset(t2normDf, t2normDf$block=="B2")
+        t2B3normDf<- subset(t2normDf, t2normDf$block=="B3")
+        t2B4normDf<- subset(t2normDf, t2normDf$block=="B4")
+        
+        mean(t2B1normDf$zDuration)  # 0.07011764
+        mean(t2B2normDf$zDuration)  # -0.123672
+        mean(t2B3normDf$zDuration)  # 0.0618502
+        mean(t2B4normDf$zDuration)  # 0.0618502
+
+        
       #f0 MEAN----------------
         #violin
         ggplot(normDf, aes(y=zF0mean, x=condition)) +
@@ -451,10 +463,21 @@ for (k in 1:filenum){
         # differentiation between sandhi conditions within T3
         
         #descriptive stats
-        mean(t2normDf$zF0mean)# -0.06700392
+        T2meanf0mean <- mean(t2normDf$zF0mean)# -0.06700392
+        T2SDf0mean <- sd(t2normDf$zF0mean)
         mean(t3SnormDf$zF0mean) #  -0.3551674
         mean(t3NSnormDf$zF0mean) #  -0.4239773
         mean(t4normDf$zF0mean) # 0.4484937
+        
+        
+        #if wanted to do this kind of z test
+        library(BSDA)
+        #to see if t3s is diff from T2 ?
+        z.test(t3SnormDf$zF0mean, alternative='two.sided', mu= -0.06700392, sigma.x= 0.9182537,conf.level=.95)
+        #this is different!
+        
+        #and then see if block affects, using model fit?
+        
         
       #f0 RANGE---------------- 
         #(each data point = range of Hz for the tone.)
