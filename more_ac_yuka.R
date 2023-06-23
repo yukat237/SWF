@@ -16,6 +16,7 @@
 #      - read in acoustic dataframe made in step 1
 #      - read in accuracy dataframe
 #      - merge these
+#      - give subject ID for later normalization per person
 # 3) Accuracy data
 #      - visualize
 #      - glmer
@@ -153,8 +154,7 @@ for (k in 1:filenum){
       #DONE > p9 -- B3_T17 lu2jingguan 
       #DONE > p10 -- lu3jingguan_B4_T22
       
-        
-      
+     
       
 ##### WORKING POINT #####================================================================
       
@@ -260,7 +260,7 @@ for (k in 1:filenum){
         #BUT, mergedDf[mergedDf$Accuracy=="Correct",] is 911. nrow(mergedDf[mergedDf$Accuracy=="Incorrect",]) is 48, which is the all data.
       #Just a note that actually this works too:
         # mergedDf <- right_join(basicinfoFULL, acDf, by = c("pair", "block", "trial"))
-
+    
       
   # Deleting some data that I realized later that are doubled
       nrow(mergedDf)
@@ -296,11 +296,33 @@ for (k in 1:filenum){
                   View(mergedDf[mergedDf$condition=="Unknown",])
                   
       #-----no need to run these anymore (START)-------------------------------------------#
-      
+                  
+  #take out P2B1T1 (which is the very last row)
+  #this is the one that has no acoustic data (bc not collected. )
+  mergedDf[mergedDf$pair=="P2"&mergedDf$block=="B1"&mergedDf$trial=="T1",]
+  mergedDf <- mergedDf[1:958,]
+
+  
+  
+  #
+  
+  
+  
+  
+  
+                  
   #checking inside
       table(mergedDf$Accuracy,mergedDf$condition)
+      table(mergedDf$pair,mergedDf$block)
+  ###---- no need to run every time (START)----
+      #write out
+      pathOut2<-paste0(currDir,'/mergedDf.csv')
+      write.table(mergedDf, pathOut2, sep = ",", row.names = F) 
+  ###---- no need to run every time (END)----
   
-
+      #items should be missing: P2B1T1 and P3B4T24
+      
+      
 ### Behavioral (Accuracy) -------  
       
       ##overall descriptive stats---
