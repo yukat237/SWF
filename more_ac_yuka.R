@@ -39,46 +39,49 @@
 # 7) Trash
 
 library(tidyverse)
+library(stringr)
 
 
 #Just seeing some examples-------------------------------------------------------
 
-# to get all diff data files output from ProsodyPro in 1 list of dataframes (seeing only 1 data)
-exfiles<-list.files(path = "/Users/yzt5262/OneDrive - The Pennsylvania State University/Desktop/Eric's study (SWF)/yuk_ac_analysis/pair1/",
-           pattern = "P1_lu2zhuren_B4_T3.*", 
-           full.names = TRUE)
-#exfiletypes<-sub(exfiles, pattern =)
-exdat <- lapply(exfiles, function(file) {
-  tryCatch(
-    acdf <- read.delim(file, header = TRUE),
-    error = function(e) {
-      message(paste("Error reading", file, ": skipping file."))
-      return(NULL)
-    }
-  )
-})
+### no need to run this (START)---------------
 
-#if using "read.table,".label, .PitchTier, .pulse, .semitonef0 were skipped. also textgrid.
-#Nulls are: list#... 8,15,16,19 21
-#label--- not needed
-#PitchTier---- more for reading as a object in Praat
-#pulse----same as above
+          # to get all diff data files output from ProsodyPro in 1 list of dataframes (seeing only 1 data)
+          exfiles<-list.files(path = "/Users/yzt5262/OneDrive - The Pennsylvania State University/Desktop/Eric's study (SWF)/yuk_ac_analysis/pair1/",
+                     pattern = "P1_lu2zhuren_B4_T3.*", 
+                     full.names = TRUE)
+          #exfiletypes<-sub(exfiles, pattern =)
+          exdat <- lapply(exfiles, function(file) {
+            tryCatch(
+              acdf <- read.delim(file, header = TRUE),
+              error = function(e) {
+                message(paste("Error reading", file, ": skipping file."))
+                return(NULL)
+              }
+            )
+          })
+          
+          #if using "read.table,".label, .PitchTier, .pulse, .semitonef0 were skipped. also textgrid.
+          #Nulls are: list#... 8,15,16,19 21
+          #label--- not needed
+          #PitchTier---- more for reading as a object in Praat
+          #pulse----same as above
+          
+          ###only extract needed info for ac stats later
+          #duration --- exdat[[9]]
+          basicinfo <-  exdat[[9]]
+          dur <- basicinfo[1,8]
+          
+          #f0 --- exdat[[9]]
+          f0mean <- basicinfo[1,5]
+          f0range <- basicinfo[1,2] - basicinfo[1,3]
+          
+          #norm time f0 --> this is more for contour and not the acoustic itself?
+          
+          #creakiness
+          # I am thinking it is just Pratt to use Voicesauce or Praat, cus not much infoavaliable
 
-###only extract needed info for ac stats later
-#duration --- exdat[[9]]
-basicinfo <-  exdat[[9]]
-dur <- basicinfo[1,8]
-
-#f0 --- exdat[[9]]
-f0mean <- basicinfo[1,5]
-f0range <- basicinfo[1,2] - basicinfo[1,3]
-
-#norm time f0 --> this is more for contour and not the acoustic itself?
-
-#creakiness
-# I am thinking it is just Pratt to use Voicesauce or Praat, cus not much infoavaliable
-
-
+### no need to run this (END)---------------
 
 
 ### Loop through all files of these basic data ----------------------------
@@ -136,16 +139,22 @@ for (k in 1:filenum){
       write.table(basicinfoFULL, pathOut, sep = ",", row.names = F)
 
 # Check what's in this basicinfoFULL
+      table(basicinfoFULL$pair, basicinfoFULL$block)
       table(basicinfoFULL$pair)
+      
+      #as of 6/22/2023 (info in : SWF_matching_trial_orders_for_processing)
         #FULL DATA (has all 96 acoustic data)
-          #Pair5,6,7
-          #pair3 ...only has 95, but this is how many collected so full data.
-        #missing one (95 data)
-          #Pair10, 4, 8, 9
-        #missing more
-          #Pair 2
-        #weird. 
-          #Pair1 ...has 99. (prob duplicated)
+          #Pair1,4,5,6,7,8,9,10
+          #pair2, 3 ...only 95, but this is how many collected, so full data! (P3 missing the very last, P2 missing the very first.)
+     
+      #DONE > p2 -- B2_T1 lu3zhuren - need to look for it -> all the labels are wrong up to B2T2. bc they started from B1_T2. (no B1_T1 collected) -> total 96. all fixed.
+      #DONE > p4 -- B2_T10 lu2zhentan only wav was missing, but after extracting the sound, figured out they o not match, so i redid it
+      #DONE > p8 -- B4_T22 lu2zhentan 
+      #DONE > p9 -- B3_T17 lu2jingguan 
+      #DONE > p10 -- lu3jingguan_B4_T22
+      
+        
+      
       
 ##### WORKING POINT #####================================================================
       
