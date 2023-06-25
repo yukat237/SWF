@@ -303,17 +303,30 @@ for (k in 1:filenum){
   mergedDf <- mergedDf[1:958,]
 
   
+  #add subject ID to mergedDf
+  # let's do P1 listener = 1, P1 Speaker = 2, P2 Listener = 3, P3 Speaker = 4 etc.
   
-  #
-  
-  
-  
-  
+  rowNummergedDf<-nrow(mergedDf)#should be 958
+  mergedDf$subjID<-""
+  #making a list of possible combinations
+  list1<-c(1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10)
+  list2<-c("Listener","Speaker")
+  refforID<-paste0("P",list1[1:20],list2[1:2])
+  as.list(refforID)
+  for (i in 1:rowNummergedDf){
+    currPair<-mergedDf[i,2]
+    currSorL<-mergedDf[i,12]
+    currInfo<-paste0(currPair,currSorL)
+    subjID <- which(refforID == currInfo) #subjId is numeric st this point
+    #append info
+    mergedDf[i,"subjID"]<- subjID
+  }
   
                   
   #checking inside
       table(mergedDf$Accuracy,mergedDf$condition)
       table(mergedDf$pair,mergedDf$block)
+      
   ###---- no need to run every time (START)----
       #write out
       pathOut2<-paste0(currDir,'/mergedDf.csv')
