@@ -326,7 +326,7 @@ for (k in 1:filenum){
   #checking inside
       table(mergedDf$Accuracy,mergedDf$condition)
       table(mergedDf$pair,mergedDf$block)
-      
+      table(mergedDf$pair, mergedDf$subjID)
   ###---- no need to run every time (START)----
       #write out
       pathOut2<-paste0(currDir,'/mergedDf.csv')
@@ -425,10 +425,27 @@ for (k in 1:filenum){
       mergedDf$duration<-mergedDf$duration %>% replace_na(9999) 
       # delete 29 items that do not have acoustic data to avoid errors in later mutation
       mergedDf<- subset(mergedDf, duration!=9999) 
-      # norming
-      normDf<-normDf %>% mutate(zDuration = (duration - mean(duration))/sd(duration))
-      normDf<-normDf %>% mutate(zF0mean = (f0mean - mean(f0mean))/sd(f0mean))
-      normDf<-normDf %>% mutate(zF0range = (f0range - mean(f0range))/sd(f0range))
+      # norming (for each participant!!)
+      #prep an empty dataframe
+      colNum <- ncol(mergedDf)
+      listColNames <- colnames(mergedDf)
+      normDf <- data.frame(matrix(ncol=colNum,nrow=0, dimnames=list(NULL, listColNames)))
+      #loop for each subject
+      for (k in 1:20) {
+        #subset the whole Df by the curr subjID
+        tmpnormDf <- subset(mergedDf, mergedDf$subjID == k)
+        
+        #mutate
+        tmpnormDf<-tmpnormDf %>% mutate(zDuration = (duration - mean(duration))/sd(duration))
+        tmpnormDf<-tmpnormDf %>% mutate(zF0mean = (f0mean - mean(f0mean))/sd(f0mean))
+        tmpnormDf<-tmpnormDf %>% mutate(zF0range = (f0range - mean(f0range))/sd(f0range))
+        
+        #append to normDf
+        normDf <- rbind(normDf,tmpnormDf)
+        
+      }
+      
+      
                       
       
   ## GENERAL TREND, not by pairs-----------
