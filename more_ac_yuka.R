@@ -410,9 +410,9 @@ for (k in 1:filenum){
       ## glmer (for binary data)
       # Glmer
       library(lme4)
-      glmer1<- glmer(Accuracy ~ condition + (1|pair), data = dataToFit, family=binomial)
+      glmer1<- glmer(Accuracy ~ condition + (1|subjID), data = dataToFit, family=binomial)
       summary(glmer1)
-      
+      #does not fit anymore
       
 # Acoustics   -----------------------------------------------------------
   
@@ -482,16 +482,18 @@ for (k in 1:filenum){
         t3NSnormDf <- subset(normDf, normDf$condition=="Tone 3 noSandhi")
         t4normDf <- subset(normDf, normDf$condition=="Tone 4")
 
-        mean(t2normDf$zDuration)# -0.02992323
-        mean(t3SnormDf$zDuration) # 0.6834059
-        mean(t3NSnormDf$zDuration) # 0.1680373
-        mean(t4normDf$zDuration) # -0.3941453
+        #updated 6/25
+        mean(t2normDf$zDuration)# 0.01051161
+        mean(t3SnormDf$zDuration) # 0.7290564
+        mean(t3NSnormDf$zDuration) # 0.1842877
+        mean(t4normDf$zDuration) # -0.4648725
         
         t2B1normDf<- subset(t2normDf, t2normDf$block=="B1")
         t2B2normDf<- subset(t2normDf, t2normDf$block=="B2")
         t2B3normDf<- subset(t2normDf, t2normDf$block=="B3")
         t2B4normDf<- subset(t2normDf, t2normDf$block=="B4")
         
+        #not updated 6/25
         mean(t2B1normDf$zDuration)  # 0.07011764
         mean(t2B2normDf$zDuration)  # -0.123672
         mean(t2B3normDf$zDuration)  # 0.0618502
