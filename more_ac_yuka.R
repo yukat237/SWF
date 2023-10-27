@@ -606,6 +606,38 @@ for (k in 1:filenum){
          geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
          scale_fill_brewer(palette="YlGnBu")+
          theme_bw()  
+    # Big visualization by pair & block   
+       normDf$block <- as.factor(normDf$block)
+       ggplot(normDf, aes(y = zDuration, x = block, fill = condition)) +
+         geom_boxplot() +
+         facet_grid(. ~ pair) +
+         #geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
+         scale_fill_brewer(palette="YlGnBu")+
+         theme_bw()  
+       
+       #just want to look at pair 4
+          #Dur
+           P4data<- normDf[normDf$pair == "P4",]
+           ggplot(P4data, aes(y = zDuration, x = block, fill = condition)) +
+             geom_boxplot() +
+            # geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
+             scale_fill_brewer(palette="GnBu")+
+             theme_bw() 
+           
+          #f0mean
+            ggplot(P4data, aes(y = zF0mean, x = block, fill = condition)) +
+             geom_boxplot() +
+             # geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
+             scale_fill_brewer(palette="PuRd")+
+             theme_bw() 
+          
+          #Range
+            ggplot(P4data, aes(y = zF0range, x = block, fill = condition)) +
+              geom_boxplot() +
+              # geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
+              scale_fill_brewer(palette="YlGn")+
+              theme_bw() 
+       
        
     
      #pair1
@@ -807,7 +839,18 @@ for (k in 1:filenum){
         geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
         scale_fill_brewer(palette="RdPu")+
         theme_bw()
-  
+      #big visualization by pair and block
+      normDf$block <- as.factor(normDf$block)
+      ggplot(normDf, aes(y = zF0mean, x = block, fill = condition)) +
+        geom_boxplot() +
+        facet_grid(. ~ pair) +
+        #geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
+        scale_fill_brewer(palette="RdPu")+
+        theme_bw()
+      
+      
+      
+      
       # stats
     
       #pair1
@@ -889,6 +932,16 @@ for (k in 1:filenum){
         geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
         scale_fill_brewer(palette="OrRd")+
         theme_bw()
+      
+      #by pair and block
+      normDf$block <- as.factor(normDf$block)
+      ggplot(normDf, aes(y = zF0range, x = block, fill = condition)) +
+        geom_boxplot() +
+        facet_grid(. ~ pair) +
+        #geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
+        scale_fill_brewer(palette="OrRd")+
+        theme_bw()
+      
   
       #pair1
       aovf0range1<-aov(zF0range ~ condition*Participant, data = P1data)
