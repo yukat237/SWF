@@ -327,11 +327,14 @@ for (k in 1:filenum){
       table(mergedDf$Accuracy,mergedDf$condition)
       table(mergedDf$pair,mergedDf$block)
       table(mergedDf$pair, mergedDf$subjID)
+      
+      
   ###---- no need to run every time (START)----
       #write out
       pathOut2<-paste0(currDir,'/mergedDf.csv')
       write.table(mergedDf, pathOut2, sep = ",", row.names = F) 
   ###---- no need to run every time (END)----
+      
   
       #items should be missing: P2B1T1 and P3B4T24
       
@@ -393,8 +396,8 @@ for (k in 1:filenum){
       ### Inferential for accuracy ------
               
       ## Contrast coding
-      library(car)
-      library(carData)
+      library("car")
+      library("carData")
       # recoding "Correct" and "Incorrect" as "1" and "0"
         dataToFit <- mergedDf
         dataToFit$Accuracy<-ifelse(dataToFit$Accuracy=="Correct", 1,0)
@@ -421,7 +424,8 @@ for (k in 1:filenum){
       
       #first, some data do not have acoustic data, so make a new df only with those data that has acoustic info.
       #i don't like "NA" so replace them with words
-      library(tidyr)
+      library("tidyr")
+      library("dplyr")
       mergedDf$duration<-mergedDf$duration %>% replace_na(9999) 
       # delete 29 items that do not have acoustic data to avoid errors in later mutation
       mergedDf<- subset(mergedDf, duration!=9999) 
