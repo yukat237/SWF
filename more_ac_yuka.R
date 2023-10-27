@@ -649,7 +649,19 @@ for (k in 1:filenum){
              geom_boxplot() +
             # geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
              scale_fill_brewer(palette="GnBu")+
-             theme_bw() 
+             theme_bw()
+          #Dur with jitter plot (edit on 10/27/2023) 
+           dfforplotP4<- P4data %>% group_by(condition, block) %>% 
+             summarise(
+               sdZdur = sd (zDuration, na.rm = TRUE),
+               zDuration = mean(zDuration)
+             )
+           
+           ggplot(P4data, aes(y=zDuration, x=block, color = condition)) + 
+             #geom_jitter(position = position_jitter(0.2), aes(colour = condition)) +
+             scale_color_manual(values= c("#BC6D61", "#51b9d3", "#519FD3", "darkgray")) + theme_bw() +
+             geom_pointrange(aes(ymin=zDuration-sdZdur, ymax=zDuration+sdZdur, color = condition), fatten =  7, linewidth = 1.5, data = dfforplotP4, position = position_dodge((0.5)))
+           
            
           #f0mean
             ggplot(P4data, aes(y = zF0mean, x = block, fill = condition)) +
