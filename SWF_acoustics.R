@@ -9,10 +9,10 @@
 #   2) acoustic data files obtained from ProsodyPro ("DATANAME.actutimenormf0" files), subfoldered by "Pair"
 
 #####----- Libraries -----#####
-library(tidyverse)
-library(ggplot2)
-library(scico)
-library(stringr)
+library("tidyverse")
+library("ggplot2")
+library("scico")
+library("stringr")
 
 #####----- LOAD ACCURACY DATA -----#####   (#for my laptop: setwd("/Users/yuka/Desktop/")
 setwd("/Users/yzt5262/OneDrive - The Pennsylvania State University/Desktop/Eric's study (SWF)")
@@ -120,7 +120,7 @@ LofDf<- list(SWF_P1,SWF_P2,SWF_P3,SWF_P4,SWF_P5,SWF_P6,SWF_P7,SWF_P8,SWF_P9,SWF_
 for (i in 1:10){
 g1 <- 
   ggplot( LofDf[[i]], aes( x = msec, y = F0, group = trial)) + theme_minimal()+
-  geom_smooth( method = "loess", se = F, aes( colour = surname, fill = surname ), alpha = .5, size = .35) +
+  geom_smooth( method = "loess", se = F, aes( colour = surname, fill = surname ), alpha = .5, linewidth = 1) +
   facet_grid( sandhi ~ block ) + # for overall view, consider sandhi ~ surname
   scale_y_continuous("F0 (Hz)")+
   scale_x_continuous("duration (ms)")+
@@ -142,6 +142,38 @@ g1 <-
 print(g1)
 }
 
+#no T4 ver---
+#prep
+LofDf2<-list()
+for (k in 1:10) {
+ LofDf2[[k]] <- LofDf[[k]][LofDf[[k]]$surname != "Lu4",]
+}
+
+for (i in 1:10){
+  g2 <- 
+    ggplot(LofDf2[[i]], aes( x = msec, y = F0, group = trial)) + theme_minimal()+
+    geom_smooth( method = "loess", se = F, aes( colour = surname, fill = surname ), alpha = .5, linewidth = 1) +
+    facet_grid( sandhi ~ block ) + # for overall view, consider sandhi ~ surname
+    scale_y_continuous("F0 (Hz)")+
+    scale_x_continuous("duration (ms)")+
+    scale_color_manual(values = c( "#519FD3" , "#BC6D61")) + 
+    scale_fill_manual(values = c( "#519FD3" , "#BC6D61")) +
+    ggtitle(paste0("Pair", i)) +
+    theme(
+      #    legend.position = "none",
+      panel.grid = element_blank(),
+      axis.ticks = element_line(color = "black", size = .25),
+      axis.line = element_line(color = "black", size = .25),
+      axis.text = element_text(size = 7),
+      axis.title = element_text(size = 8),
+      legend.text = element_text(size = 8),
+      legend.title = element_text(size = 8),
+      panel.background = element_rect(fill = "gray99", color = NA),
+      plot.background = element_rect(fill = "white", color = NA)
+    )
+  print(g2)
+}
+
 
 #ggsave(g1,
 #       file = "SWF_matching_P2_new.svg",
@@ -149,6 +181,14 @@ print(g1)
 #       height = 2.5, 
 #       units = "in",
 #       dpi = 300)
+
+
+
+
+
+
+
+
 
 
 ##########################
