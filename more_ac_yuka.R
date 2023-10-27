@@ -468,7 +468,30 @@ for (k in 1:filenum){
         stat_summary(fun = "median",
                      geom = "point",
                      aes(color = "Median")) +
-        scale_colour_manual(values = c("red", "blue"), name = "")
+        scale_fill_manual(values = c("#BC6D61", "#5167d3", "#519FD3", "#EAEDE9"), name = "")
+              #notes for color coding: 
+                  #T3 blue "#519FD3" 
+                  #T2 red "#BC6D61" 
+                  #T4 white "#EAEDE9"
+
+        
+      
+        #dot plot with error bar
+          #error bar prep (sd column)
+          dfforplot<- normDf %>% group_by(condition) %>% 
+            summarise(
+              sdZdur = sd (zDuration, na.rm = TRUE),
+              zDuration = mean(zDuration)
+          )
+          
+          #plotting
+          ggplot(normDf, aes(y=zDuration, x=condition)) + geom_jitter(position = position_jitter(0.2), aes(colour = condition)) +
+            scale_color_manual(values= c("#BC6D61", "#51b9d3", "#519FD3", "darkgray")) + theme_bw() +
+            geom_pointrange(aes(ymin=zDuration-sdZdur, ymax=zDuration+sdZdur), color = "black" , fatten =  6, linewidth = 1, data = dfforplot)
+          
+
+      
+            
         #boxplot
         ggplot(normDf, aes(y=zDuration, x=condition)) +
           geom_boxplot(aes(fill = condition)) +theme_bw()
