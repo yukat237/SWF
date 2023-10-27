@@ -676,6 +676,23 @@ for (k in 1:filenum){
               # geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
               scale_fill_brewer(palette="YlGn")+
               theme_bw() 
+            
+            
+          #just want to look at unsuccessful pair 9  (edit on 10/27/2023) 
+            #Dur with jitter plot
+            P9data<- normDf[normDf$pair == "P9",]
+            
+            dfforplotP9<- P9data %>% group_by(condition, block) %>% 
+              summarise(
+                sdZdur = sd (zDuration, na.rm = TRUE),
+                zDuration = mean(zDuration)
+              )
+            
+            ggplot(P9data, aes(y=zDuration, x=block, color = condition)) + 
+              #geom_jitter(position = position_jitter(0.2), aes(colour = condition)) +
+              scale_color_manual(values= c("#BC6D61", "#51b9d3", "#519FD3", "darkgray")) + theme_bw() +
+              geom_pointrange(aes(ymin=zDuration-sdZdur, ymax=zDuration+sdZdur, color = condition), fatten =  7, linewidth = 1.5, data = dfforplotP9, position = position_dodge((0.5)))
+            
        
        
     
