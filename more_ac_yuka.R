@@ -485,8 +485,8 @@ for (k in 1:filenum){
           )
           
           #plotting
-          ggplot(normDf, aes(y=zDuration, x=condition)) + geom_jitter(position = position_jitter(0.2), aes(colour = condition)) +
-            scale_color_manual(values= c("#BC6D61", "#51b9d3", "#519FD3", "darkgray")) + theme_bw() +
+          ggplot(normDf, aes(y=zDuration, x=condition)) + geom_jitter(position = position_jitter(0.2), aes(colour = condition), alpha = .5, stroke = 0.5) +
+            scale_colour_manual(values= c("#BC6D61", "#51b9d3", "#519FD3", "darkgray")) + theme_bw() +
             geom_pointrange(aes(ymin=zDuration-sdZdur, ymax=zDuration+sdZdur), color = "black" , fatten =  6, linewidth = 1, data = dfforplot)
           
 
