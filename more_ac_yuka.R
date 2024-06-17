@@ -16,6 +16,7 @@
 #      - read in acoustic dataframe made in step 1
 #      - read in accuracy dataframe
 #      - merge these
+#      - give subject ID for later normalization per person
 # 3) Accuracy data
 #      - visualize
 #      - glmer
@@ -39,46 +40,49 @@
 # 7) Trash
 
 library(tidyverse)
+library(stringr)
 
 
 #Just seeing some examples-------------------------------------------------------
 
-# to get all diff data files output from ProsodyPro in 1 list of dataframes (seeing only 1 data)
-exfiles<-list.files(path = "/Users/yzt5262/OneDrive - The Pennsylvania State University/Desktop/Eric's study (SWF)/yuk_ac_analysis/pair1/",
-           pattern = "P1_lu2zhuren_B4_T3.*", 
-           full.names = TRUE)
-#exfiletypes<-sub(exfiles, pattern =)
-exdat <- lapply(exfiles, function(file) {
-  tryCatch(
-    acdf <- read.delim(file, header = TRUE),
-    error = function(e) {
-      message(paste("Error reading", file, ": skipping file."))
-      return(NULL)
-    }
-  )
-})
+### no need to run this (START)---------------
 
-#if using "read.table,".label, .PitchTier, .pulse, .semitonef0 were skipped. also textgrid.
-#Nulls are: list#... 8,15,16,19 21
-#label--- not needed
-#PitchTier---- more for reading as a object in Praat
-#pulse----same as above
+          # to get all diff data files output from ProsodyPro in 1 list of dataframes (seeing only 1 data)
+          exfiles<-list.files(path = "/Users/yzt5262/OneDrive - The Pennsylvania State University/Desktop/Eric's study (SWF)/yuk_ac_analysis/pair1/",
+                     pattern = "P1_lu2zhuren_B4_T3.*", 
+                     full.names = TRUE)
+          #exfiletypes<-sub(exfiles, pattern =)
+          exdat <- lapply(exfiles, function(file) {
+            tryCatch(
+              acdf <- read.delim(file, header = TRUE),
+              error = function(e) {
+                message(paste("Error reading", file, ": skipping file."))
+                return(NULL)
+              }
+            )
+          })
+          
+          #if using "read.table,".label, .PitchTier, .pulse, .semitonef0 were skipped. also textgrid.
+          #Nulls are: list#... 8,15,16,19 21
+          #label--- not needed
+          #PitchTier---- more for reading as a object in Praat
+          #pulse----same as above
+          
+          ###only extract needed info for ac stats later
+          #duration --- exdat[[9]]
+          basicinfo <-  exdat[[9]]
+          dur <- basicinfo[1,8]
+          
+          #f0 --- exdat[[9]]
+          f0mean <- basicinfo[1,5]
+          f0range <- basicinfo[1,2] - basicinfo[1,3]
+          
+          #norm time f0 --> this is more for contour and not the acoustic itself?
+          
+          #creakiness
+          # I am thinking it is just Pratt to use Voicesauce or Praat, cus not much infoavaliable
 
-###only extract needed info for ac stats later
-#duration --- exdat[[9]]
-basicinfo <-  exdat[[9]]
-dur <- basicinfo[1,8]
-
-#f0 --- exdat[[9]]
-f0mean <- basicinfo[1,5]
-f0range <- basicinfo[1,2] - basicinfo[1,3]
-
-#norm time f0 --> this is more for contour and not the acoustic itself?
-
-#creakiness
-# I am thinking it is just Pratt to use Voicesauce or Praat, cus not much infoavaliable
-
-
+### no need to run this (END)---------------
 
 
 ### Loop through all files of these basic data ----------------------------
@@ -136,16 +140,21 @@ for (k in 1:filenum){
       write.table(basicinfoFULL, pathOut, sep = ",", row.names = F)
 
 # Check what's in this basicinfoFULL
+      table(basicinfoFULL$pair, basicinfoFULL$block)
       table(basicinfoFULL$pair)
+      
+      #as of 6/22/2023 (info in : SWF_matching_trial_orders_for_processing)
         #FULL DATA (has all 96 acoustic data)
-          #Pair5,6,7
-          #pair3 ...only has 95, but this is how many collected so full data.
-        #missing one (95 data)
-          #Pair10, 4, 8, 9
-        #missing more
-          #Pair 2
-        #weird. 
-          #Pair1 ...has 99. (prob duplicated)
+          #Pair1,4,5,6,7,8,9,10
+          #pair2, 3 ...only 95, but this is how many collected, so full data! (P3 missing the very last, P2 missing the very first.)
+     
+      #DONE > p2 -- B2_T1 lu3zhuren - need to look for it -> all the labels are wrong up to B2T2. bc they started from B1_T2. (no B1_T1 collected) -> total 96. all fixed.
+      #DONE > p4 -- B2_T10 lu2zhentan only wav was missing, but after extracting the sound, figured out they o not match, so i redid it
+      #DONE > p8 -- B4_T22 lu2zhentan 
+      #DONE > p9 -- B3_T17 lu2jingguan 
+      #DONE > p10 -- lu3jingguan_B4_T22
+      
+     
       
 ##### WORKING POINT #####================================================================
       
@@ -251,7 +260,7 @@ for (k in 1:filenum){
         #BUT, mergedDf[mergedDf$Accuracy=="Correct",] is 911. nrow(mergedDf[mergedDf$Accuracy=="Incorrect",]) is 48, which is the all data.
       #Just a note that actually this works too:
         # mergedDf <- right_join(basicinfoFULL, acDf, by = c("pair", "block", "trial"))
-
+    
       
   # Deleting some data that I realized later that are doubled
       nrow(mergedDf)
@@ -287,11 +296,49 @@ for (k in 1:filenum){
                   View(mergedDf[mergedDf$condition=="Unknown",])
                   
       #-----no need to run these anymore (START)-------------------------------------------#
-      
+                  
+  #take out P2B1T1 (which is the very last row)
+  #this is the one that has no acoustic data (bc not collected. )
+  mergedDf[mergedDf$pair=="P2"&mergedDf$block=="B1"&mergedDf$trial=="T1",]
+  mergedDf <- mergedDf[1:958,]
+
+  
+  #add subject ID to mergedDf
+  # let's do P1 listener = 1, P1 Speaker = 2, P2 Listener = 3, P3 Speaker = 4 etc.
+  
+  rowNummergedDf<-nrow(mergedDf)#should be 958
+  mergedDf$subjID<-""
+  #making a list of possible combinations
+  list1<-c(1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10)
+  list2<-c("Listener","Speaker")
+  refforID<-paste0("P",list1[1:20],list2[1:2])
+  as.list(refforID)
+  for (i in 1:rowNummergedDf){
+    currPair<-mergedDf[i,2]
+    currSorL<-mergedDf[i,12]
+    currInfo<-paste0(currPair,currSorL)
+    subjID <- which(refforID == currInfo) #subjId is numeric st this point
+    #append info
+    mergedDf[i,"subjID"]<- subjID
+  }
+  
+                  
   #checking inside
       table(mergedDf$Accuracy,mergedDf$condition)
+      table(mergedDf$pair,mergedDf$block)
+      table(mergedDf$pair, mergedDf$subjID)
+      
+      
+  ###---- no need to run every time (START)----
+      #write out
+      pathOut2<-paste0(currDir,'/mergedDf.csv')
+      write.table(mergedDf, pathOut2, sep = ",", row.names = F) 
+  ###---- no need to run every time (END)----
+      
   
-
+      #items should be missing: P2B1T1 and P3B4T24
+      
+      
 ### Behavioral (Accuracy) -------  
       
       ##overall descriptive stats---
@@ -349,8 +396,8 @@ for (k in 1:filenum){
       ### Inferential for accuracy ------
               
       ## Contrast coding
-      library(car)
-      library(carData)
+      library("car")
+      library("carData")
       # recoding "Correct" and "Incorrect" as "1" and "0"
         dataToFit <- mergedDf
         dataToFit$Accuracy<-ifelse(dataToFit$Accuracy=="Correct", 1,0)
@@ -366,9 +413,9 @@ for (k in 1:filenum){
       ## glmer (for binary data)
       # Glmer
       library(lme4)
-      glmer1<- glmer(Accuracy ~ condition + (1|pair), data = dataToFit, family=binomial)
+      glmer1<- glmer(Accuracy ~ condition + (1|subjID), data = dataToFit, family=binomial)
       summary(glmer1)
-      
+      #does not fit anymore
       
 # Acoustics   -----------------------------------------------------------
   
@@ -377,14 +424,32 @@ for (k in 1:filenum){
       
       #first, some data do not have acoustic data, so make a new df only with those data that has acoustic info.
       #i don't like "NA" so replace them with words
-      library(tidyr)
+      library("tidyr")
+      library("dplyr")
       mergedDf$duration<-mergedDf$duration %>% replace_na(9999) 
       # delete 29 items that do not have acoustic data to avoid errors in later mutation
       mergedDf<- subset(mergedDf, duration!=9999) 
-      # norming
-      normDf<-normDf %>% mutate(zDuration = (duration - mean(duration))/sd(duration))
-      normDf<-normDf %>% mutate(zF0mean = (f0mean - mean(f0mean))/sd(f0mean))
-      normDf<-normDf %>% mutate(zF0range = (f0range - mean(f0range))/sd(f0range))
+      # norming (for each participant!!)
+      #prep an empty dataframe
+      colNum <- ncol(mergedDf)
+      listColNames <- colnames(mergedDf)
+      normDf <- data.frame(matrix(ncol=colNum,nrow=0, dimnames=list(NULL, listColNames)))
+      #loop for each subject
+      for (k in 1:20) {
+        #subset the whole Df by the curr subjID
+        tmpnormDf <- subset(mergedDf, mergedDf$subjID == k)
+        
+        #mutate
+        tmpnormDf<-tmpnormDf %>% mutate(zDuration = (duration - mean(duration))/sd(duration))
+        tmpnormDf<-tmpnormDf %>% mutate(zF0mean = (f0mean - mean(f0mean))/sd(f0mean))
+        tmpnormDf<-tmpnormDf %>% mutate(zF0range = (f0range - mean(f0range))/sd(f0range))
+        
+        #append to normDf
+        normDf <- rbind(normDf,tmpnormDf)
+        
+      }
+      
+      
                       
       
   ## GENERAL TREND, not by pairs-----------
@@ -403,7 +468,30 @@ for (k in 1:filenum){
         stat_summary(fun = "median",
                      geom = "point",
                      aes(color = "Median")) +
-        scale_colour_manual(values = c("red", "blue"), name = "")
+        scale_fill_manual(values = c("#BC6D61", "#5167d3", "#519FD3", "#EAEDE9"), name = "")
+              #notes for color coding: 
+                  #T3 blue "#519FD3" 
+                  #T2 red "#BC6D61" 
+                  #T4 white "#EAEDE9"
+
+        
+      
+        #dot plot with error bar
+          #error bar prep (sd column)
+          dfforplot<- normDf %>% group_by(condition) %>% 
+            summarise(
+              sdZdur = sd (zDuration, na.rm = TRUE),
+              zDuration = mean(zDuration)
+          )
+          
+          #plotting
+          ggplot(normDf, aes(y=zDuration, x=condition)) + geom_jitter(position = position_jitter(0.2), aes(colour = condition), alpha = .5, stroke = 0.5) +
+            scale_colour_manual(values= c("#BC6D61", "#51b9d3", "#519FD3", "darkgray")) + theme_bw() +
+            geom_pointrange(aes(ymin=zDuration-sdZdur, ymax=zDuration+sdZdur), color = "black" , fatten =  6, linewidth = 1, data = dfforplot)
+          
+
+      
+            
         #boxplot
         ggplot(normDf, aes(y=zDuration, x=condition)) +
           geom_boxplot(aes(fill = condition)) +theme_bw()
@@ -421,16 +509,18 @@ for (k in 1:filenum){
         t3NSnormDf <- subset(normDf, normDf$condition=="Tone 3 noSandhi")
         t4normDf <- subset(normDf, normDf$condition=="Tone 4")
 
-        mean(t2normDf$zDuration)# -0.02992323
-        mean(t3SnormDf$zDuration) # 0.6834059
-        mean(t3NSnormDf$zDuration) # 0.1680373
-        mean(t4normDf$zDuration) # -0.3941453
+        #updated 6/25
+        mean(t2normDf$zDuration)# 0.01051161
+        mean(t3SnormDf$zDuration) # 0.7290564
+        mean(t3NSnormDf$zDuration) # 0.1842877
+        mean(t4normDf$zDuration) # -0.4648725
         
         t2B1normDf<- subset(t2normDf, t2normDf$block=="B1")
         t2B2normDf<- subset(t2normDf, t2normDf$block=="B2")
         t2B3normDf<- subset(t2normDf, t2normDf$block=="B3")
         t2B4normDf<- subset(t2normDf, t2normDf$block=="B4")
         
+        #not updated 6/25
         mean(t2B1normDf$zDuration)  # 0.07011764
         mean(t2B2normDf$zDuration)  # -0.123672
         mean(t2B3normDf$zDuration)  # 0.0618502
@@ -543,6 +633,67 @@ for (k in 1:filenum){
          geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
          scale_fill_brewer(palette="YlGnBu")+
          theme_bw()  
+    # Big visualization by pair & block   
+       normDf$block <- as.factor(normDf$block)
+       ggplot(normDf, aes(y = zDuration, x = block, fill = condition)) +
+         geom_boxplot() +
+         facet_grid(. ~ pair) +
+         #geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
+         scale_fill_brewer(palette="YlGnBu")+
+         theme_bw()  
+       
+       #just want to look at pair 4
+          #Dur
+           P4data<- normDf[normDf$pair == "P4",]
+           ggplot(P4data, aes(y = zDuration, x = block, fill = condition)) +
+             geom_boxplot() +
+            # geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
+             scale_fill_brewer(palette="GnBu")+
+             theme_bw()
+          #Dur with jitter plot (edit on 10/27/2023) 
+           dfforplotP4<- P4data %>% group_by(condition, block) %>% 
+             summarise(
+               sdZdur = sd (zDuration, na.rm = TRUE),
+               zDuration = mean(zDuration)
+             )
+           
+           ggplot(P4data, aes(y=zDuration, x=block, color = condition)) + 
+             #geom_jitter(position = position_jitter(0.2), aes(colour = condition)) +
+             scale_color_manual(values= c("#BC6D61", "#51b9d3", "#519FD3", "darkgray")) + theme_bw() +
+             geom_pointrange(aes(ymin=zDuration-sdZdur, ymax=zDuration+sdZdur, color = condition), fatten =  7, linewidth = 1.5, data = dfforplotP4, position = position_dodge((0.5)))
+           
+           
+          #f0mean
+            ggplot(P4data, aes(y = zF0mean, x = block, fill = condition)) +
+             geom_boxplot() +
+             # geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
+             scale_fill_brewer(palette="PuRd")+
+             theme_bw() 
+          
+          #Range
+            ggplot(P4data, aes(y = zF0range, x = block, fill = condition)) +
+              geom_boxplot() +
+              # geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
+              scale_fill_brewer(palette="YlGn")+
+              theme_bw() 
+            
+            
+          #just want to look at unsuccessful pair 9  (edit on 10/27/2023) 
+            #Dur with jitter plot
+            P9data<- normDf[normDf$pair == "P9",]
+            
+            dfforplotP9<- P9data %>% group_by(condition, block) %>% 
+              summarise(
+                sdZdur = sd (zDuration, na.rm = TRUE),
+                zDuration = mean(zDuration)
+              )
+            
+            ggplot(P9data, aes(y=zDuration, x=block, color = condition)) + 
+              #geom_jitter(position = position_jitter(0.2), aes(colour = condition)) +
+              scale_color_manual(values= c("#BC6D61", "#51b9d3", "#519FD3", "darkgray")) + theme_bw() +
+              geom_pointrange(aes(ymin=zDuration-sdZdur, ymax=zDuration+sdZdur, color = condition), fatten =  7, linewidth = 1.5, data = dfforplotP9, position = position_dodge((0.5)))
+            
+       
        
     
      #pair1
@@ -744,7 +895,18 @@ for (k in 1:filenum){
         geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
         scale_fill_brewer(palette="RdPu")+
         theme_bw()
-  
+      #big visualization by pair and block
+      normDf$block <- as.factor(normDf$block)
+      ggplot(normDf, aes(y = zF0mean, x = block, fill = condition)) +
+        geom_boxplot() +
+        facet_grid(. ~ pair) +
+        #geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
+        scale_fill_brewer(palette="RdPu")+
+        theme_bw()
+      
+      
+      
+      
       # stats
     
       #pair1
@@ -826,6 +988,16 @@ for (k in 1:filenum){
         geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
         scale_fill_brewer(palette="OrRd")+
         theme_bw()
+      
+      #by pair and block
+      normDf$block <- as.factor(normDf$block)
+      ggplot(normDf, aes(y = zF0range, x = block, fill = condition)) +
+        geom_boxplot() +
+        facet_grid(. ~ pair) +
+        #geom_point(aes(fill = condition), size = 1.2, shape = 21, position = position_dodge(width = 0.8)) +
+        scale_fill_brewer(palette="OrRd")+
+        theme_bw()
+      
   
       #pair1
       aovf0range1<-aov(zF0range ~ condition*Participant, data = P1data)
