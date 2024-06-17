@@ -408,7 +408,7 @@ for (k in 1:filenum){
       #sum contrast
       contrasts(dataToFit$condition) <- contr.Sum(levels(dataToFit$condition))
       #note: if wanted to change the baseline:
-      #   levels(dataToFit$condition) <- factor(c( "Tone 2","Tone 3 Sandhi","Tone 3 noSandhi", "Tone 4"))
+         levels(dataToFit$condition) <- factor(c("Tone 4","Tone 2","Tone 3 Sandhi","Tone 3 noSandhi"))
       
       ## glmer (for binary data)
       # Glmer

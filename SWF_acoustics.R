@@ -141,6 +141,7 @@ g1 <-
   )
 print(g1)
 }
+<<<<<<< Updated upstream
 
 #no T4 ver---
 #prep
@@ -174,6 +175,9 @@ for (i in 1:10){
   print(g2)
 }
 
+=======
+#change
+>>>>>>> Stashed changes
 
 #ggsave(g1,
 #       file = "SWF_matching_P2_new.svg",
