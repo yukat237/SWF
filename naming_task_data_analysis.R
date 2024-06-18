@@ -15,6 +15,8 @@
 #lib
 library("stringr") #for str_extract
 library("tibble") #for add_row
+library("dplyr") #for mutate
+library("ggplot2") #for ggplot
 
 
 
@@ -96,10 +98,118 @@ write.table(basicinfoFULL, pathOut, sep = ",", row.names = F)
 
 ###----------- matching behavioral data -------------
 
-
-
+#for now:
+mergedDf<-basicinfoFULL
 
 ###-----------descriptive stats-------------
+
+
+## normalization -----------      
+#get z score for each data, for columns: duration, f0mean, f0range
+
+#first, some data do not have acoustic data, so make a new df only with those data that has acoustic info.
+mergedDf<- subset(mergedDf, f0range!=0)
+
+# norming (for each participant!!)
+#prep an empty dataframe
+colNum <- ncol(mergedDf)
+listColNames <- colnames(mergedDf)
+normDf <- data.frame(matrix(ncol=colNum,nrow=0, dimnames=list(NULL, listColNames)))
+
+mergedDf$f0mean <- as.numeric(mergedDf$f0mean)
+
+#loop for each subject
+for (k in 1:2) {
+  #subset the whole Df by the curr subjID
+  tmpnormDf <- subset(mergedDf, mergedDf$subject == paste0("S",k))
+  
+  #mutate
+  tmpnormDf<-tmpnormDf %>% mutate(zDuration = (duration - mean(duration))/sd(duration))
+  tmpnormDf<-tmpnormDf %>% mutate(zF0mean = (f0mean - mean(f0mean))/sd(f0mean))
+  tmpnormDf<-tmpnormDf %>% mutate(zF0range = (f0range - mean(f0range))/sd(f0range))
+  
+  #append to normDf
+  normDf <- rbind(normDf,tmpnormDf)
+  
+}
+
+normDf$tone1stSyllable <- str_extract(normDf$surname, "\\d")
+normDf$tone2ndSyllable <- str_extract(normDf$jobtitle, "\\d")
+normDf$sandhi <- ifelse(normDf$tone2ndSyllable == "3" & normDf$tone1stSyllable == "3", "yes", "no")
+normDf$tonecond <- ifelse(normDf$tone1stSyllable %in% c("1", "2", "4"), normDf$tone1stSyllable,
+                                           ifelse(normDf$tone1stSyllable == "3" & normDf$sandhi == "yes", "3 sandhi", "3 nonsandhi"))
+
+
+
+##DURATION---------------
+
+ggplot(normDf, aes(x = interaction(subject, prepost), y = zDuration, fill = prepost)) +
+  geom_boxplot() + labs(title = "Pre-test and Post-test Duration",
+                          x = "participant",
+                          y = "normed duration") +  scale_x_discrete(labels = c("Person 1\nPre-test", "Person 1\nPost-test", 
+                              "Person 2\nPre-test", "Person 2\nPost-test")) + theme_minimal()
+
+ggplot(normDf, aes(x = interaction(subject, prepost), y = zDuration, fill = tone1stSyllable)) +
+  geom_boxplot() + labs(title = "Pre-test and Post-test Duration",
+                        x = "participant",
+                        y = "normed duration") +  scale_x_discrete(labels = c("Person 1\nPre-test", "Person 1\nPost-test", 
+                                                                              "Person 2\nPre-test", "Person 2\nPost-test")) + theme_minimal()
+
+
+ggplot(normDf, aes(x = interaction(subject, prepost), y = zDuration, fill = tonecond)) +
+  geom_boxplot() + labs(title = "Pre-test and Post-test Duration",
+                        x = "participant",
+                        y = "normed duration") +  scale_x_discrete(labels = c("Person 1\nPre-test", "Person 1\nPost-test", 
+                                                                              "Person 2\nPre-test", "Person 2\nPost-test")) + theme_minimal()
+
+
+
+##F0MEAN---------------
+
+
+ggplot(normDf, aes(x = interaction(subject, prepost), y = zF0mean, fill = prepost)) +
+  geom_boxplot() + labs(title = "Pre-test and Post-test f0mean",
+                        x = "participant",
+                        y = "normed f0mean") +  scale_x_discrete(labels = c("Person 1\nPre-test", "Person 1\nPost-test", 
+                                                                              "Person 2\nPre-test", "Person 2\nPost-test")) + theme_minimal()
+
+ggplot(normDf, aes(x = interaction(subject, prepost), y = zF0mean, fill = tone1stSyllable)) +
+  geom_boxplot() + labs(title = "Pre-test and Post-test f0mean",
+                        x = "participant",
+                        y = "normed duration") +  scale_x_discrete(labels = c("Person 1\nPre-test", "Person 1\nPost-test", 
+                                                                              "Person 2\nPre-test", "Person 2\nPost-test")) + theme_minimal()
+
+
+ggplot(normDf, aes(x = interaction(subject, prepost), y = zF0mean, fill = tonecond)) +
+  geom_boxplot() + labs(title = "Pre-test and Post-test f0mean",
+                        x = "participant",
+                        y = "normed duration") +  scale_x_discrete(labels = c("Person 1\nPre-test", "Person 1\nPost-test", 
+                                                                              "Person 2\nPre-test", "Person 2\nPost-test")) + theme_minimal()
+
+
+
+
+##F0RANGE---------------
+
+ggplot(normDf, aes(x = interaction(subject, prepost), y = zF0range, fill = prepost)) +
+  geom_boxplot() + labs(title = "Pre-test and Post-test f0range",
+                        x = "participant",
+                        y = "normed f0range") +  scale_x_discrete(labels = c("Person 1\nPre-test", "Person 1\nPost-test", 
+                                                                              "Person 2\nPre-test", "Person 2\nPost-test")) + theme_minimal()
+
+ggplot(normDf, aes(x = interaction(subject, prepost), y = zF0range, fill = tone1stSyllable)) +
+  geom_boxplot() + labs(title = "Pre-test and Post-test f0mean",
+                        x = "participant",
+                        y = "normed duration") +  scale_x_discrete(labels = c("Person 1\nPre-test", "Person 1\nPost-test", 
+                                                                              "Person 2\nPre-test", "Person 2\nPost-test")) + theme_minimal()
+
+
+ggplot(normDf, aes(x = interaction(subject, prepost), y = zF0range, fill = tonecond)) +
+  geom_boxplot() + labs(title = "Pre-test and Post-test f0mean",
+                        x = "participant",
+                        y = "normed duration") +  scale_x_discrete(labels = c("Person 1\nPre-test", "Person 1\nPost-test", 
+                                                                              "Person 2\nPre-test", "Person 2\nPost-test")) + theme_minimal()
+
 
 
 
